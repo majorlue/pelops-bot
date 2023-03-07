@@ -1,0 +1,77 @@
+name: Build image
+on:
+  push:
+    branches:
+      - main
+concurrency: ci
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '#skip-ci')"
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Dry incremement patch version
+        id: tag-dry-run
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          WITH_V: true
+          DRY_RUN: true
+
+      - name: Set version for later
+        run: |
+          echo "Increnting version with '${{ steps.tag-dry-run.outputs.part }}' to '${{ steps.tag-dry-run.outputs.new_tag }}' from '${{ steps.tag-dry-run.outputs.tag }}'"
+          tag=${{ steps.tag-dry-run.outputs.new_tag }}
+          version=$(echo "$tag" | cut -b 2-)
+          echo "version=$version" >> $GITHUB_ENV
+      - name: Set npm version
+        uses: reedyuk/npm-version@1.1.1
+        with:
+          version: ${{ env.version }}
+
+      - name: Docker metadata
+        id: metadata
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            registry.digitalocean.com/orna-bot/pelops
+          tags: |
+            type=semver,pattern={{major}},value=${{ env.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ env.version }}
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Log in to DO Container Registry
+        run: doctl registry login --expiry-seconds 600
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v3
+        with:
+          context: ./
+          file: ./Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Increment patch version
+        uses: anothrNick/github-tag-action@1.36.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: patch
