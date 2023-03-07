@@ -6,7 +6,9 @@ import {version} from '../package.json';
 const production: boolean = process.env.NODE_ENV === 'production';
 
 const config: Record<string, string | number | undefined> = {
-  TOKEN: process.env.TOKEN,
+  BOT_TOKEN: process.env.BOT_TOKEN,
+  BOT_EMBED_COLOUR: 'DarkPurple',
+  BOT_FOOTER_MESSAGE: 'made by Major#1005',
 };
 
 const assertedConfig: Record<string, string> = {};

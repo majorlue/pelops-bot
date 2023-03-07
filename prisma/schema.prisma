@@ -18,25 +18,31 @@ model Tower {
 
   // Defining unique constraint to be combination of theme/week
   @@id([theme, week])
+  @@map("towers")
 }
 
 model Floor {
-  number     Int      @id // Floor number 1-50
+  id         String   @id @default(uuid())
+  number     Int // Floor number 1-50
   guardians  String[] // Array of primary fight sprite
   strays     String[] // Array of primary fight sprite
   puzzles    String[] // Array of puzzle type, difficulty
   chests     String[] // Array of chest bufftype/key
   // Relation to Theme/Week
   tower      Tower    @relation(fields: [towerTheme, towerWeek], references: [theme, week])
-  towerTheme String
-  towerWeek  Int
+  towerTheme String   @map("tower_theme")
+  towerWeek  Int      @map("tower_week")
+
+  @@map("floors")
 }
 
 model Encounter {
-  leader        String         @id // Monster sprite, as it shows on map
-  leaderMonster Monster        @relation(fields: [leader], references: [name])
-  tier          Int // Minimum encounter tier (9, 10)
-  monsters      MonsterCount[] // Array of monsters in this encounter (incl. leader)
+  leader      String         @id // Monster sprite, as it shows on map
+  leadMonster Monster        @relation(fields: [leader], references: [name])
+  tier        Int // Minimum encounter tier (9, 10)
+  monsters    MonsterCount[] // Array of monsters in this encounter (incl. leader)
+
+  @@map("encounters")
 }
 
 // Monster name/count definition for encounters
@@ -46,9 +52,10 @@ model MonsterCount {
   count           Int // Number of the above monster
   monster         Monster    @relation(fields: [monsterName], references: [name])
   encounter       Encounter? @relation(fields: [encounterLeader], references: [leader])
-  encounterLeader String?
+  encounterLeader String?    @map("encounter_leader")
 
   @@id([monsterName, count])
+  @@map("mounster_counts")
 }
 
 model Monster {
@@ -57,4 +64,6 @@ model Monster {
   statuses     String[] // Starts with buffs/debuffs/statuses?
   monsterCount MonsterCount[]
   encounter    Encounter[]
+
+  @@map("monsters")
 }
