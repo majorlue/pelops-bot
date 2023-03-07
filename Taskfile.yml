@@ -15,11 +15,37 @@ silent: true
 tasks:
   default: task --list
 
+  # - - - Project commands - - -
+  clean:
+    desc: Removes build/ directory.
+    deps: [npm-install]
+    cmds:
+      - npm run clean
+
+  lint:
+    desc: Fixes any auto-fixable style issues and lints the project.
+    deps: [npm-install]
+    cmds:
+      - npm run fix
+      - npm run lint
+
+  build:
+    desc: Transpile TypeScript and copy any other required runtime files.
+    deps: [npm-install]
+    cmds:
+      - npm run build
+
   watch:
     desc: Start server instance and watch for TypeScript file changes.
     deps: [npm-install]
     cmds:
       - npm run watch
+
+  start:
+    desc: Runs server instance as active process in the current terminal.
+    deps: [npm-install]
+    cmds:
+      - npm run start
 
   # - - - Custom Scripts - - -
 
