@@ -10,10 +10,9 @@
     "url": "git+https://github.com/majorlue/orna-towers.git"
   },
   "scripts": {
-    "clean": "gts clean",
-    "lint": "gts lint",
-    "fix": "gts fix",
-    "prebuild": "npm run clean",
+    "clean": "npx gts clean",
+    "lint": "npx gts lint",
+    "fix": "npx gts fix",
     "build": "tsc -p tsconfig.json",
     "postbuild": "copyfiles package.json build",
     "watch": "nodemon -L ./src/index.ts",
