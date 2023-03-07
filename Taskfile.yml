@@ -1,0 +1,66 @@
+# https://taskfile.dev
+# Install via npm install -g @go-task/cli
+
+version: '3'
+
+vars:
+  # 'local', 'development', 'production'
+  ENV: local
+
+# TODO: set .env file paths here
+dotenv: ['.env.{{.ENV}}']
+
+silent: true
+
+tasks:
+  default: task --list
+
+  watch:
+    desc: Start server instance and watch for TypeScript file changes.
+    deps: [npm-install]
+    cmds:
+      - npm run watch
+
+  # - - - Custom Scripts - - -
+
+  custom-script:
+    desc: Run custom script using env file. Requires the script name to be passed in.
+    cmds:
+      - npx ts-node devops/{{.CLI_ARGS}}
+
+  # - - - Prisma (Database ORM) commands - - -
+  db-migrate:
+    desc: Create and apply database schema migrations. Requires the migration name to be passed in.
+    cmds:
+      - npx prisma migrate dev --name {{.CLI_ARGS}}
+
+  db-migrate-create:
+    desc: Create database schema migration file without applying it. Requires the migration name to be passed in.
+    cmds:
+      - npx prisma migrate dev --create-only --name {{.CLI_ARGS}}
+
+  db-migrate-apply:
+    desc: Apply created database schema migrations. Used after `task db-migrate-create`.
+    cmds:
+      - npx prisma migrate dev
+
+  db-deploy:
+    desc: Load migration files and apply them to the database.
+    cmds:
+      - npx prisma migrate deploy
+
+  db-reset:
+    desc: COMPLETELY RESET THE DATABASE, then apply migration files.
+    cmds:
+      - npx prisma migrate reset
+
+  prisma-studio:
+    desc: Launch Prisma studio instance.
+    cmds:
+      - npx prisma studio --browser none
+
+  npm-install:
+    internal: true
+    desc: Install node modules
+    cmds:
+      - npm install

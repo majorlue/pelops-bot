@@ -1,0 +1,33 @@
+{
+  "name": "orna-towers",
+  "version": "1.0.0",
+  "description": "Hello world!",
+  "author": "majorlue",
+  "license": "ISC",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/majorlue/orna-towers.git"
+  },
+  "scripts": {
+    "clean": "gts clean",
+    "lint": "gts lint",
+    "fix": "gts fix",
+    "prebuild": "npm run clean",
+    "build": "tsc -p tsconfig.json",
+    "postbuild": "copyfiles -u 1 src/**/*.ejs build/src && copyfiles package.json build",
+    "watch": "nodemon -L ./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^14.11.2",
+    "gts": "^3.1.1",
+    "prisma": "^4.11.0",
+    "ts-node": "^10.9.1",
+    "typescript": "~4.7.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.11.0",
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3"
+  }
+}
