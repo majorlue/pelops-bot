@@ -1,9 +1,10 @@
 import {CommandInteraction} from 'discord.js';
 import {Command} from '../interfaces/command';
+import encounter from './encounter';
 import floors from './floors';
 import towers from './aliases/towers';
 
-const commandList: Command[] = [floors, towers];
+const commandList: Command[] = [encounter, floors, towers];
 
 const commandHash: Record<
   string,

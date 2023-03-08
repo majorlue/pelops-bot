@@ -50,6 +50,5 @@ model Monster {
   berserk  Boolean  @default(false) // Is berserk?
   statuses String[] // Starts with buffs/debuffs/statuses?
 
-  @@unique([name, berserk, statuses])
   @@map("monsters")
 }
