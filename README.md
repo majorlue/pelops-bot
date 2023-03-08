@@ -16,14 +16,14 @@ I'll be using GitHub Issues for bugs/requests/suggestions. All communication, or
 
 ###### Feature Requests
 
-Feel free to make feature requests for the bot! Do keep in mind the scope of the bot, though. Currently it's just for Towers, so mostly anything related is fine. See below for how/where.
+Feel free to make feature requests for the bot! Do keep in mind the scope of the bot, though. Currently it's just for Towers, so mostly anything related is fine.
 
 ###### Bug Reports
 
-If you encounter a bug then please do report it. I'll do my best to fix issues as they crop up. See below for how/where.
+If you encounter a bug then please do report it. I'll do my best to fix issues as they crop up.
 
 ### Bot Access
 
 As the project is new, the bot isn't in very many servers. You can invite it to your own server using **[this link (click)](https://discord.com/api/oauth2/authorize?client_id=1082499786067935232&permissions=414464658496&scope=applications.commands%20bot)** if you have admin permissions If not, you can contact a server mod/admin about it. I can't add the bot to individual servers, so don't contact me about it.
 
-> <div style="text-align: right"> Thanks for reading, have a great day!<br>- Major </div>
+> Thanks for reading, have a great day!<br>- Major
