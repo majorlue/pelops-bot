@@ -37,33 +37,20 @@ model Floor {
 }
 
 model Encounter {
-  leader      String         @id // Monster sprite, as it shows on map
-  leadMonster Monster        @relation(fields: [leader], references: [name])
-  tier        Int // Minimum encounter tier (9, 10)
-  monsters    MonsterCount[] // Array of monsters in this encounter (incl. leader)
+  leader   String    @id @unique // Monster sprite, as it shows on map
+  tier     Int // Minimum encounter tier (9, 10)
+  monsters Monster[] // Array of monsters in this encounter (incl. leader)
 
   @@map("encounters")
 }
 
-// Monster name/count definition for encounters
-model MonsterCount {
-  id              String     @default(uuid())
-  monsterName     String // Monster name
-  count           Int // Number of the above monster
-  monster         Monster    @relation(fields: [monsterName], references: [name])
-  encounter       Encounter? @relation(fields: [encounterLeader], references: [leader])
-  encounterLeader String?    @map("encounter_leader")
-
-  @@id([monsterName, count])
-  @@map("mounster_counts")
-}
-
 model Monster {
-  name         String         @id // Monster name
-  berserk      Boolean        @default(false) // Is berserk?
-  statuses     String[] // Starts with buffs/debuffs/statuses?
-  monsterCount MonsterCount[]
-  encounter    Encounter[]
+  id        Int         @id @default(autoincrement())
+  name      String // Monster name
+  berserk   Boolean     @default(false) // Is berserk?
+  statuses  String[] // Starts with buffs/debuffs/statuses?
+  encounter Encounter[]
 
+  @@unique([name, berserk, statuses])
   @@map("monsters")
 }
