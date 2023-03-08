@@ -37,19 +37,18 @@ model Floor {
 }
 
 model Encounter {
-  leader   String    @id @unique // Monster sprite, as it shows on map
+  leader   String   @id @unique // Monster sprite, as it shows on map
   tier     Int // Minimum encounter tier (9, 10)
-  monsters Monster[] // Array of monsters in this encounter (incl. leader)
+  monsters String[] // Array of monsters in this encounter (incl. leader)
 
   @@map("encounters")
 }
 
 model Monster {
-  id        Int         @id @default(autoincrement())
-  name      String // Monster name
-  berserk   Boolean     @default(false) // Is berserk?
-  statuses  String[] // Starts with buffs/debuffs/statuses?
-  encounter Encounter[]
+  id       Int      @id @default(autoincrement())
+  name     String // Monster name
+  berserk  Boolean  @default(false) // Is berserk?
+  statuses String[] // Starts with buffs/debuffs/statuses?
 
   @@unique([name, berserk, statuses])
   @@map("monsters")
