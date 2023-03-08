@@ -51,12 +51,9 @@ const command: Command = {
       if (prismaEntry.berserk) prismaEntry.statuses.push('berserk');
       // bolded monster name, hyperlinked to the online codex entry
       enemiesDesc += `**[${monster}](${codexURL})**`;
-      // show monster statuses in parentheses, capitlising each status that isn't a temp one
+      // show monster statuses in parentheses
       if (prismaEntry.statuses.length)
-        enemiesDesc += ` (${prismaEntry.statuses
-          // capitalise stasues that don't start with 't.'
-          .map(x => (x.slice(0, 1) === 't.' ? x : x[0] + x.slice(1)))
-          .join(', ')})`;
+        enemiesDesc += ` (${prismaEntry.statuses.join(', ')})`;
       enemiesDesc += '\n\n';
     }
 
