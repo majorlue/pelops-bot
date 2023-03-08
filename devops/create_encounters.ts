@@ -1,4 +1,4 @@
-import {prisma} from '../src/handlers';
+import {prisma} from '../src/handlers/prisma';
 
 const encounters = [
   {leader: 'Anubis', tier: 10, monsters: ['Anubis']},

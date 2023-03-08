@@ -1,4 +1,4 @@
-import {prisma} from '../src/handlers';
+import {prisma} from '../src/handlers/prisma';
 
 const monsters = [
   {name: 'Anubis', berserk: false, statuses: []},
