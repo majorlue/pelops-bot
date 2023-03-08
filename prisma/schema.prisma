@@ -47,8 +47,7 @@ model Encounter {
 model Monster {
   id       Int      @id @default(autoincrement())
   name     String // Monster name
-  berserk  Boolean  @default(false) // Is berserk?
-  statuses String[] // Starts with buffs/debuffs/statuses?
+  statuses String[] // buffs/debuffs/statuses, or berserk?
 
   @@map("monsters")
 }
