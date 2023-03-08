@@ -19,7 +19,6 @@ const start = async () => {
   );
 
   await client.login(BOT_TOKEN);
-  console.log(`Client successfully logged in`);
 };
 
 start();
