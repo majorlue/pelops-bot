@@ -47,8 +47,6 @@ const command: Command = {
         where: {name: monster},
       });
 
-      // append berserk as a status
-      if (prismaEntry.berserk) prismaEntry.statuses.push('berserk');
       // bolded monster name, hyperlinked to the online codex entry
       enemiesDesc += `**[${monster}](${codexURL})**`;
       // show monster statuses in parentheses
