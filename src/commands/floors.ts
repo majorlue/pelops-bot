@@ -1,7 +1,7 @@
 import {SlashCommandBuilder} from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
-import {Command} from '../interfaces/command';
 import {config} from '../config';
+import {Command} from '../interfaces/command';
 
 const command: Command = {
   data: new SlashCommandBuilder()

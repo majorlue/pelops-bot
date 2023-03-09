@@ -1,7 +1,7 @@
 import {Interaction} from 'discord.js';
+import {go as search} from 'fuzzysort';
 import {commandHash} from '../commands';
 import {leadMonsters} from './onReady';
-import {go as search} from 'fuzzysort';
 
 // define fuzzy search options
 const searchOpts = {

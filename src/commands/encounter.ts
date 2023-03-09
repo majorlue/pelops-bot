@@ -1,9 +1,9 @@
 import {SlashCommandBuilder} from '@discordjs/builders';
+import axios from 'axios';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
-import {Command} from '../interfaces/command';
 import {config} from '../config';
 import {prisma} from '../handlers';
-import axios from 'axios';
+import {Command} from '../interfaces/command';
 
 const command: Command = {
   data: new SlashCommandBuilder()

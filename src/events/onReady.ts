@@ -2,7 +2,7 @@ import {REST} from '@discordjs/rest';
 import {Routes} from 'discord-api-types/v9';
 import {Client} from 'discord.js';
 // Importing commandHash so it's loaded upon startup, rather than on the first command after startup
-import {commandList, commandHash} from '../commands';
+import {commandHash, commandList} from '../commands';
 import {config} from '../config';
 import {prisma} from '../handlers';
 
@@ -15,7 +15,11 @@ const onReady = async (client: Client) => {
 
   const rest = new REST().setToken(config.BOT_TOKEN);
 
-  console.log(`Serving ${(await client.guilds.fetch()).size} servers`);
+  console.log(
+    `Serving ${(await client.guilds.fetch()).size} servers as ${
+      client.user?.tag
+    }`
+  );
 
   // register commands as global discord slash commands
   let loadTime = Date.now();

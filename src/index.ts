@@ -1,6 +1,6 @@
 import {Client} from 'discord.js';
-import {onInteraction, onReady} from './events';
 import {config} from './config';
+import {onInteraction, onReady} from './events';
 
 // extracting required config vars
 const {BOT_TOKEN} = config;
