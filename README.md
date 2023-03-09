@@ -4,11 +4,11 @@ Heya, this is the repo for the discord bot Pelops. The purpose of this project i
 
 ### Core Features (wip):
 
-- `/floors`: displays the current height for each Tower theme
-- `/encounter`: displays Tower fight information (floor guardians, strays)
-- `/submit`: allows **community contribution** for the current week's Tower layout
-- `/tower`: displays the specified theme's current layout, including floor guardians, stray monsters, puzzle types/difficulty and chests.
-- `/keys`: displays the current week's Tower floors with key fights
+✅ `/floors`: displays the current height for each Tower theme
+✅ `/encounter`: displays Tower fight information (floor guardians, strays)
+❌ `/submit`: allows **community contribution** for the current week's Tower layout
+❌ `/tower`: displays the specified theme's current layout, including floor guardians, stray monsters, puzzle types/difficulty and chests.
+❌ `/keys`: displays the current week's Tower floors with key fights
 
 ### GitHub Issues
 
@@ -24,6 +24,6 @@ If you encounter a bug then please do report it. I'll do my best to fix issues a
 
 ### Bot Access
 
-As the project is new, the bot isn't in very many servers. You can invite it to your own server using **[this link (click)](https://discord.com/api/oauth2/authorize?client_id=1082499786067935232&permissions=414464658496&scope=applications.commands%20bot)** if you have admin permissions If not, you can contact a server mod/admin about it. I can't add the bot to individual servers, so don't contact me about it.
+As the project is new, the bot isn't in very many servers. If you have admin permissions, you can add Pelops to your own server using **[this link (click)](https://discord.com/api/oauth2/authorize?client_id=1082499786067935232&permissions=414464658496&scope=applications.commands%20bot)**. If not, you can contact a server mod/admin about it. I can't add the bot to individual servers, so don't contact me about it.
 
 > Thanks for reading, have a great day!<br>- Major
