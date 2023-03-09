@@ -28,46 +28,12 @@ const command: Command = {
     // TODO: err msg
     if (!encounter) return;
 
-    // query ethi's API for the lead monster name
-    const apiResp = (
-      await axios.post('https://ornapi.cadelabs.ovh/api/v0.1/monsters', {
-        name: encounter.leader,
-      })
-    ).data[0]; // extract first item in data response
-
-    // construct image and codex URLs using ethi's URI and config prefixes
-    const imageURL = config.ORNAGUIDE_IMAGE_PREFIX + apiResp['image_name'];
-    const codexURL = config.CODEX_PREFIX + apiResp['codex_uri'];
-
-    // retrieve db entries for encounter monsters
-    const prismaEntries = await prisma.monster.findMany({
-      where: {name: {in: encounter.monsters}},
-    });
-
-    // populate embed field value for every monster in the encounter
-    let enemiesDesc = '';
-    for (const monster of encounter.monsters) {
-      // retrieve curr monster
-      const prismaEntry = prismaEntries.find(
-        x => x.name === monster
-      ) as Monster;
-
-      // bolded monster name, hyperlinked to the online codex entry
-      enemiesDesc += `**[${monster}](${codexURL})**`;
-      // show monster statuses in parentheses
-      if (prismaEntry.statuses.length)
-        enemiesDesc += ` (${prismaEntry.statuses.join(', ')})`;
-      enemiesDesc += '\n\n';
-    }
-
     // build embed for the command
     const responseEmbed = new EmbedBuilder()
       .setAuthor({
         // not actually author, just the top-most header text
         name: `Monster Encounter`,
       })
-      .addFields({name: 'Enemies', value: enemiesDesc})
-      .setThumbnail(imageURL)
       .setFooter({
         // the small text at the bottom
         text: config.BOT_FOOTER_MESSAGE,
@@ -76,6 +42,53 @@ const command: Command = {
       .setColor(config.BOT_EMBED_COLOUR as ColorResolvable)
       .setTimestamp();
 
+    // promise of enemies formatted for display
+    const enemies: Promise<string>[] = [];
+
+    // retrieve db entries for encounter monsters
+    await prisma.monster
+      .findMany({
+        where: {name: {in: encounter.monsters}},
+      })
+      .then(async prismaEntries => {
+        // iterate over each enemy in the encounter, pushing an enemy's embed string
+        for (const monster of encounter.monsters) {
+          // retrieve curr monster
+          const prismaEntry = prismaEntries.find(x => x.name === monster);
+          if (!prismaEntry) throw Error();
+
+          // query Ethi's API for monster image/codex uri
+          enemies.push(
+            axios
+              .post('https://ornapi.cadelabs.ovh/api/v0.1/monsters', {
+                name: monster,
+              })
+              .then(response => {
+                const data = response.data[0];
+                // if curr monster is the leader, set its image as the embed thumbnail
+                if (monster === encounter.leader)
+                  responseEmbed.setThumbnail(
+                    config.ORNAGUIDE_IMAGE_PREFIX + data['image_name']
+                  );
+
+                const codexURL = config.CODEX_PREFIX + data['codex_uri'];
+                const monsterEmbed =
+                  // bold monster name and, using markdown, insert hyperlink to its codex entry
+                  `**[${monster}](${codexURL})**` +
+                  // if the monster has any statuses, display it in parentheses
+                  (prismaEntry.statuses.length
+                    ? ` (${prismaEntry.statuses.join(', ')})`
+                    : '');
+                return monsterEmbed;
+              })
+          );
+        }
+      });
+
+    responseEmbed.addFields({
+      name: 'Enemies',
+      value: (await Promise.all(enemies)).join('\n\n'),
+    });
     // now that processing is done, edit original message with the populated embed
     await interaction.editReply({embeds: [responseEmbed]});
   },
