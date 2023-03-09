@@ -2,7 +2,7 @@ import {SlashCommandBuilder} from '@discordjs/builders';
 import axios from 'axios';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import {config} from '../config';
-import {prisma} from '../handlers';
+import {Monster, prisma} from '../handlers';
 import {Command} from '../interfaces/command';
 
 const command: Command = {
@@ -39,13 +39,18 @@ const command: Command = {
     const imageURL = config.ORNAGUIDE_IMAGE_PREFIX + apiResp['image_name'];
     const codexURL = config.CODEX_PREFIX + apiResp['codex_uri'];
 
+    // retrieve db entries for encounter monsters
+    const prismaEntries = await prisma.monster.findMany({
+      where: {name: {in: encounter.monsters}},
+    });
+
     // populate embed field value for every monster in the encounter
     let enemiesDesc = '';
     for (const monster of encounter.monsters) {
-      // retrieve db entry for curr monster
-      const prismaEntry = await prisma.monster.findFirstOrThrow({
-        where: {name: monster},
-      });
+      // retrieve curr monster
+      const prismaEntry = prismaEntries.find(
+        x => x.name === monster
+      ) as Monster;
 
       // bolded monster name, hyperlinked to the online codex entry
       enemiesDesc += `**[${monster}](${codexURL})**`;
