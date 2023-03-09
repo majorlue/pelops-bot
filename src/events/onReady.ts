@@ -4,7 +4,7 @@ import {Client} from 'discord.js';
 // Importing commandHash so it's loaded upon startup, rather than on the first command after startup
 import {commandHash, commandList} from '../commands';
 import {config} from '../config';
-import {prisma} from '../handlers';
+import {logger, prisma} from '../handlers';
 
 const leadMonsters: string[] = [];
 
@@ -15,7 +15,7 @@ const onReady = async (client: Client) => {
 
   const rest = new REST().setToken(config.BOT_TOKEN);
 
-  console.log(
+  logger.info(
     `Serving ${(await client.guilds.fetch()).size} servers as ${
       client.user?.tag
     }`
@@ -27,8 +27,8 @@ const onReady = async (client: Client) => {
   await rest.put(Routes.applicationCommands(clientId), {
     body: commandData,
   });
-  console.log(`Commands loaded: ${Object.keys(commandHash).join(', ')}`);
-  console.log(
+  logger.info(`Commands loaded: ${Object.keys(commandHash).join(', ')}`);
+  logger.info(
     `Loaded ${commandData.length} commands in ${Date.now() - loadTime}ms`
   );
 
@@ -37,7 +37,7 @@ const onReady = async (client: Client) => {
   (await prisma.encounter.findMany()).forEach(encounter =>
     leadMonsters.push(encounter.leader)
   );
-  console.log(
+  logger.info(
     `Loaded ${leadMonsters.length} encounters in ${Date.now() - loadTime}ms`
   );
 };

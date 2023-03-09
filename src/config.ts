@@ -1,7 +1,4 @@
-import {config as dotenv} from 'dotenv';
-dotenv({path: process.env.ENV_PATH});
-
-import {version} from '../package.json';
+require('newrelic');
 
 const production: boolean = process.env.NODE_ENV === 'production';
 
