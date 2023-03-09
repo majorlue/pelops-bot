@@ -1,6 +1,6 @@
 import {REST} from '@discordjs/rest';
 import {Routes} from 'discord-api-types/v9';
-import {Client} from 'discord.js';
+import {ActivityType, Client} from 'discord.js';
 // Importing commandHash so it's loaded upon startup, rather than on the first command after startup
 import {commandHash, commandList} from '../commands';
 import {config} from '../config';
@@ -10,16 +10,13 @@ const leadMonsters: string[] = [];
 
 // complete startup tasks, log time taken
 const onReady = async (client: Client) => {
-  const clientId = client.user?.id;
-  if (!clientId) throw Error('No client ID found!');
+  if (!client.user) throw Error('Client not found');
+  const clientId = client.user.id;
+  const serverCount = (await client.guilds.fetch()).size;
 
   const rest = new REST().setToken(config.BOT_TOKEN);
 
-  logger.info(
-    `Serving ${(await client.guilds.fetch()).size} servers as ${
-      client.user?.tag
-    }`
-  );
+  logger.info(`Serving ${serverCount} servers as ${client.user?.tag}`);
 
   // register commands as global discord slash commands
   let loadTime = Date.now();
@@ -40,5 +37,12 @@ const onReady = async (client: Client) => {
   logger.info(
     `Loaded ${leadMonsters.length} encounters in ${Date.now() - loadTime}ms`
   );
+
+  client.user.setPresence({
+    activities: [
+      {type: ActivityType.Listening, name: `${serverCount} servers`},
+    ],
+  });
 };
+
 export {onReady, leadMonsters};
