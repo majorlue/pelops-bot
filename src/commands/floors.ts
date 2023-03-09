@@ -75,7 +75,7 @@ const command: Command = {
       })
       .addFields({
         // second header text for current UTC display and insert heights code block
-        name: `${weekdays[day]} ${hour}${minutes} UTC`,
+        name: `${weekdays[day]} ${hour < 10 ? `0${hour}` : hour}${minutes} UTC`,
         value: floorEmbed,
       })
       .setFooter({
