@@ -13,7 +13,7 @@ datasource db {
 
 model Tower {
   theme  String // Tower Theme eg. Prometheus
-  week   Int // Week # of the year 1-52
+  week   String
   floors Floor[] // Array of floors and their encounters
 
   // Defining unique constraint to be combination of theme/week
@@ -29,9 +29,9 @@ model Floor {
   puzzles    String[] // Array of puzzle type, difficulty
   chests     String[] // Array of chest bufftype/key
   // Relation to Theme/Week
-  tower      Tower    @relation(fields: [towerTheme, towerWeek], references: [theme, week])
+  Tower      Tower    @relation(fields: [towerTheme, towerWeek], references: [theme, week])
   towerTheme String   @map("tower_theme")
-  towerWeek  Int      @map("tower_week")
+  towerWeek  String   @map("tower_week")
 
   @@map("floors")
 }

@@ -33,6 +33,7 @@
     "@prisma/client": "^4.11.0",
     "axios": "^1.3.4",
     "copyfiles": "^2.4.1",
+    "dayjs": "^1.11.7",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "fuzzysort": "^2.0.4",
