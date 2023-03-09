@@ -16,27 +16,38 @@ const onReady = async (client: Client) => {
 
   const rest = new REST().setToken(config.BOT_TOKEN);
 
-  logger.info(`Serving ${serverCount} servers as ${client.user?.tag}`);
+  logger.info(`Serving ${serverCount} servers as ${client.user?.tag}`, {
+    type: 'startup',
+  });
+
+  // two non-constant value for timing functions
+  let start = Date.now();
+  let time = '';
 
   // register commands as global discord slash commands
-  let loadTime = Date.now();
   const commandData = commandList.map(command => command.data.toJSON());
   await rest.put(Routes.applicationCommands(clientId), {
     body: commandData,
   });
-  logger.info(`Commands loaded: ${Object.keys(commandHash).join(', ')}`);
-  logger.info(
-    `Loaded ${commandData.length} commands in ${Date.now() - loadTime}ms`
-  );
+  logger.info(`Commands loaded: ${Object.keys(commandHash).join(', ')}`, {
+    type: 'startup',
+  });
+  time = `${Date.now() - start}ms`;
+  logger.info(`Loaded ${commandData.length} commands in ${time}`, {
+    type: 'startup',
+    time,
+  });
 
+  start = Date.now();
   // retrieve encounters and load them as autocomplete suggestions
-  loadTime = Date.now();
   (await prisma.encounter.findMany()).forEach(encounter =>
     leadMonsters.push(encounter.leader)
   );
-  logger.info(
-    `Loaded ${leadMonsters.length} encounters in ${Date.now() - loadTime}ms`
-  );
+  time = `${Date.now() - start}ms`;
+  logger.info(`Loaded ${leadMonsters.length} encounters in ${time}`, {
+    type: 'startup',
+    time,
+  });
 
   client.user.setPresence({
     activities: [
