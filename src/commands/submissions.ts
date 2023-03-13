@@ -3,14 +3,13 @@ import {
   SlashCommandIntegerOption,
   SlashCommandStringOption,
 } from '@discordjs/builders';
-import axios from 'axios';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import client from '..';
 import {botConfig, config, towerConfig} from '../config';
 import {currentWeek, logger, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
-const {FOOTER_MESSAGE, EMBED_COLOUR, IMAGE_PATH} = config;
+const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
 const {administrators} = botConfig;
 
 const {maxHeight, minHeight, themes, towerSprites} = towerConfig;
@@ -240,60 +239,40 @@ const command: Command = {
     } else {
       const submissions = await prisma.floorSubmission.findMany({
         where: {week, theme, floor, resolved: false},
-        take: 10,
       });
+      submissions.sort((a, b) => a.floor - b.floor);
+      submissions.sort((a, b) => (a.theme > b.theme ? -1 : 1));
+      const responseEmbed = new EmbedBuilder()
+        .setAuthor({
+          name: `Week of ${week} | ${submissions.length} submissions`,
+        })
+        .setTitle('Floor Submissions')
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp();
 
-      const responseEmbeds = [];
       for (const submission of submissions) {
         const {id, user, theme, floor, chest, guardian, puzzle, stray} =
           submission;
+
         const userObj = (await (
           await client.users.fetch(user)
         ).toJSON()) as Record<string, unknown>;
-        const submissionEmbed = new EmbedBuilder()
-          .setAuthor({
-            name: (userObj.tag as string) + ' | ' + `${theme} F${floor}`,
-            iconURL: userObj.avatarURL as string,
-          })
-          .addFields({name: 'Submission UID', value: id})
-          .setFooter({text: FOOTER_MESSAGE})
-          .setColor(EMBED_COLOUR as ColorResolvable)
-          .setTimestamp();
 
-        if (guardian || stray) {
-          const {image_name} = (
-            await axios.post('https://ornapi.cadelabs.ovh/api/v0.1/monsters', {
-              name: guardian || stray,
-            })
-          ).data[0];
-          const type = guardian ? 'Floor Guardian' : 'Stray Monster';
-          submissionEmbed
-            .setTitle(type)
-            .setThumbnail(IMAGE_PATH + image_name)
-            .setDescription(guardian || stray);
-        } else if (puzzle || chest !== null) {
-          const type = puzzle ? 'Tower Puzzle' : 'Chest Count';
-          submissionEmbed
-            .setTitle(type)
-            .setDescription(puzzle || chest?.toString() || '');
-        }
+        const field = {name: `${theme} F${floor}`, value: ''};
 
-        responseEmbeds.push(submissionEmbed);
+        if (guardian) field.value = '`Floor Guardian`: ' + guardian + '\n';
+        if (stray) field.value = '`Stray Monster`: ' + guardian + '\n';
+        if (puzzle) field.value = '`Tower Puzzle`: ' + guardian + '\n';
+        if (chest) field.value = '`Chest Count`: ' + guardian + '\n';
+
+        field.value += `\`Submitted by\`: ${userObj.tag}` + '\n';
+        field.value += `\`Submission ID\`: ${id}`;
+
+        responseEmbed.addFields(field);
       }
 
-      if (responseEmbeds.length === 0)
-        responseEmbeds.push(
-          new EmbedBuilder()
-            .setAuthor({
-              name: `${theme}`,
-            })
-            .addFields({name: 'No Floors Submitted', value: 'Try again later!'})
-            .setFooter({text: FOOTER_MESSAGE})
-            .setColor(EMBED_COLOUR as ColorResolvable)
-            .setTimestamp()
-        );
-
-      await interaction.editReply({embeds: responseEmbeds});
+      await interaction.editReply({embeds: [responseEmbed]});
     }
   },
 };
