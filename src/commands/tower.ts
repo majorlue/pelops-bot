@@ -69,7 +69,7 @@ const command: Command = {
 
     const responseEmbeds = [];
 
-    if (floorFields.length < 20) {
+    if (floorFields.length < 25) {
       // build embed for the command
       responseEmbeds.push(
         new EmbedBuilder()

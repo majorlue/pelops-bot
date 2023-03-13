@@ -42,8 +42,8 @@ const towerConfig = {
     Themis: 'https://orna.guide/static/orna/img/towers/2_3.png',
   },
   keyFights: ['Tower Guard'],
-  minHeight: 10,
-  maxHeight: 50,
+  minHeight: 1,
+  maxHeight: 49,
   minChests: 0,
   maxChests: 5,
   puzzles: {
