@@ -69,3 +69,11 @@ model Monster {
 
   @@map("monsters")
 }
+
+// table of approved contributors who bypass the approval process on /submit
+model Contributor {
+  id        String   @id
+  createdOn DateTime @default(now())
+
+  @@map("contributors")
+}

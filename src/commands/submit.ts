@@ -6,7 +6,7 @@ import {
 import axios from 'axios';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import {config, towerConfig} from '../config';
-import {currentWeek, prisma} from '../handlers';
+import {approveSubmission, currentWeek, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR, IMAGE_PATH} = config;
@@ -119,7 +119,7 @@ const command: Command = {
     if (puzzle) embedFields.push({name: 'Puzzle', value: puzzle});
 
     // upsert to current tower theme
-    await prisma.floorSubmission.create({
+    const submission = await prisma.floorSubmission.create({
       data: {
         // create tower entry if it doesn't exist, otherwise add relation
         tower: {
@@ -137,28 +137,46 @@ const command: Command = {
       },
     });
 
-    const responseEmbed = new EmbedBuilder()
-      .setAuthor({
+    // pull approved contributors
+    const contributors = await prisma.contributor.findMany();
+    const isContributor =
+      contributors.filter(x => x.id === interaction.user.id).length > 0;
+
+    // if they're an approved contributor, then skip the submission process and return the update embed
+    if (isContributor) {
+      const approvedEmbed = await approveSubmission(submission);
+      approvedEmbed.setAuthor({
         name: `Tower Floor Submission`,
         iconURL: interaction.user.avatarURL() || '',
-      })
-      .setTitle(`Pending review`)
-      .addFields(...embedFields)
-      .setFooter({text: FOOTER_MESSAGE})
-      .setColor(EMBED_COLOUR as ColorResolvable)
-      .setTimestamp();
+      });
 
-    if (guardian || stray) {
-      const {image_name} = (
-        await axios.post('https://ornapi.cadelabs.ovh/api/v0.1/monsters', {
-          name: guardian || stray,
-        })
-      ).data[0];
-
-      responseEmbed.setThumbnail(IMAGE_PATH + image_name);
+      await interaction.editReply({embeds: [approvedEmbed]});
     }
+    // if they're a regular user, then go through full submission process
+    else {
+      const responseEmbed = new EmbedBuilder()
+        .setAuthor({
+          name: `Tower Floor Submission`,
+          iconURL: interaction.user.avatarURL() || '',
+        })
+        .setTitle(`Pending review`)
+        .addFields(...embedFields)
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp();
 
-    await interaction.editReply({embeds: [responseEmbed]});
+      if (guardian || stray) {
+        const {image_name} = (
+          await axios.post('https://ornapi.cadelabs.ovh/api/v0.1/monsters', {
+            name: guardian || stray,
+          })
+        ).data[0];
+
+        responseEmbed.setThumbnail(IMAGE_PATH + image_name);
+      }
+
+      await interaction.editReply({embeds: [responseEmbed]});
+    }
   },
 };
 

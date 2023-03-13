@@ -1,6 +1,7 @@
 import {CommandInteraction} from 'discord.js';
 import {Command} from '../interfaces';
 import approve from './approve';
+import contributor from './contributor';
 import deny from './deny';
 import encounter from './encounter';
 import floors from './floors';
@@ -11,6 +12,7 @@ import tower from './tower';
 
 const commandList: Command[] = [
   approve,
+  contributor,
   deny,
   encounter,
   floors,
@@ -27,7 +29,7 @@ const commandHash: Record<
 for (const command of commandList) commandHash[command.data.name] = command.run;
 
 // create array of commands to cycle through as status
-const exclude = ['approve', 'deny', 'submissions'];
+const exclude = ['approve', 'contributor', 'deny', 'submissions'];
 const presenceCmds = Object.keys(commandHash).filter(x => !exclude.includes(x));
 
 export {commandHash, commandList, presenceCmds};

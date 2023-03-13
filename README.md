@@ -16,13 +16,15 @@ The expectation is for this bot to be a central source of community information 
 
 ###### `/submit` command
 
-Players can use this command to contribute information to the project, allowing anyone else to use it later that week.
+Players can use this command to contribute information to the project, allowing **anyone else** to use it later that week. All servers share the same data, so someone can contribute from one server and, if approved, that information will be available in all other servers.
 
 The command allows submitting **floor guardians**, **stray monsters**, **chest count** and **puzzles** information for a specified Tower theme and floor. This only allows singular inputs for simplicity sake, however. The bot does make the process easier by offering static choices or autocompletion (eg. for guardians/strays).
 
 Submissions follow an approval process. This means that `/tower` or `/keys` will not reflect submissions immediately. Submissions must be **approved manually** by a moderator before floor information is publicly modified. This is to ensure information accuracy, and to prevent people who want to troll.
 
-If you'd like to help with moderation feel free to reach out to Major#1005 on Discord. Help is very, very appreciated <3
+I will be marking select players as an 'Approved Contributor', to ease the process along. These players will **skip the approval process entirely**, so they can more quickly modify Tower information for others. Similar to the approval process, however, players will be added manually. It'll be a trust thing =)
+
+If you'd like to help with moderating submissions, or to become an Approved Contributor feel free to reach out to Major#1005 on Discord. Help is very, very appreciated <3
 
 ### GitHub Issues
 
