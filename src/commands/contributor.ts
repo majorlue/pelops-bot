@@ -1,11 +1,12 @@
 import {SlashCommandBuilder} from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import client from '..';
-import {config} from '../config';
+import {config, botConfig} from '../config';
 import {prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
+const {administrators} = botConfig;
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -38,6 +39,21 @@ const command: Command = {
   run: async interaction => {
     // Discord requires acknowledgement within 3 seconds, so just defer reply for now
     await interaction.deferReply({ephemeral: true});
+
+    if (!administrators.includes(interaction.user.id)) {
+      const responseEmbed = new EmbedBuilder()
+        .setAuthor({
+          name: interaction.user.tag,
+          iconURL: interaction.user.avatarURL() || '',
+        })
+        .setTitle(`Permission Denied`)
+        .setDescription('Only bot administrators may use this command, sorry!')
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp();
+      await interaction.editReply({embeds: [responseEmbed]});
+      return;
+    }
 
     const addUser = interaction.options.get('add_user')?.value as
       | string
