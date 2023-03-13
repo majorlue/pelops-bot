@@ -2,7 +2,7 @@ import {SlashCommandBuilder} from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import client from '..';
 import {config, botConfig} from '../config';
-import {prisma} from '../handlers';
+import {dayjs, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
@@ -34,6 +34,9 @@ const command: Command = {
             .setDescription('User to remove as a contributor')
             .setRequired(true)
         )
+    )
+    .addSubcommand(subcommand =>
+      subcommand.setName('list').setDescription('List all current contributors')
     ),
 
   run: async interaction => {
@@ -114,6 +117,29 @@ const command: Command = {
         .setDescription(
           'They will now be subject to the submissions process when using `/submit`.'
         )
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp();
+
+      await interaction.editReply({embeds: [responseEmbed]});
+    } else {
+      const contributorIds = (await prisma.contributor.findMany()).sort(
+        (a, b) => a.createdOn.valueOf() - b.createdOn.valueOf()
+      );
+
+      let description = '';
+      for (const contributor of contributorIds) {
+        const {id, createdOn} = contributor;
+        const dateAdded = dayjs(createdOn).format('DD/MM/YYYY');
+        const userObj = (await (
+          await client.users.fetch(id)
+        ).toJSON()) as Record<string, unknown>;
+
+        description += `**${userObj.tag}**: ${dateAdded}\n`;
+      }
+      const responseEmbed = new EmbedBuilder()
+        .setTitle(`Contributor List`)
+        .setDescription(description)
         .setFooter({text: FOOTER_MESSAGE})
         .setColor(EMBED_COLOUR as ColorResolvable)
         .setTimestamp();
