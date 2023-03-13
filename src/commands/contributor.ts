@@ -40,18 +40,25 @@ const command: Command = {
     // Discord requires acknowledgement within 3 seconds, so just defer reply for now
     await interaction.deferReply({ephemeral: true});
 
+    // return if user is not a bot administrator
     if (!administrators.includes(interaction.user.id)) {
-      const responseEmbed = new EmbedBuilder()
-        .setAuthor({
-          name: interaction.user.tag,
-          iconURL: interaction.user.avatarURL() || '',
-        })
-        .setTitle(`Permission Denied`)
-        .setDescription('Only bot administrators may use this command, sorry!')
-        .setFooter({text: FOOTER_MESSAGE})
-        .setColor(EMBED_COLOUR as ColorResolvable)
-        .setTimestamp();
-      await interaction.editReply({embeds: [responseEmbed]});
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: interaction.user.tag,
+              iconURL: interaction.user.avatarURL() || '',
+            })
+            .setTitle(`Permission Denied`)
+            .setDescription(
+              'Only bot administrators may use this command, sorry!'
+            )
+            .setFooter({text: FOOTER_MESSAGE})
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setTimestamp(),
+        ],
+      });
+      // exit, as anauthenticated
       return;
     }
 

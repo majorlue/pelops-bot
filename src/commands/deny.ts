@@ -5,7 +5,7 @@ import {prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
-const {adminChannels} = botConfig;
+const {administrators} = botConfig;
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -19,10 +19,29 @@ const command: Command = {
     ),
   run: async interaction => {
     // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-    await interaction.deferReply({ephemeral: false});
+    await interaction.deferReply({ephemeral: true});
 
-    // return if not used in an admin channel (allows multiple mods by default)
-    if (!adminChannels.includes(interaction.channelId)) return;
+    // return if user is not a bot administrator
+    if (!administrators.includes(interaction.user.id)) {
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: interaction.user.tag,
+              iconURL: interaction.user.avatarURL() || '',
+            })
+            .setTitle(`Permission Denied`)
+            .setDescription(
+              'Only bot administrators may use this command, sorry!'
+            )
+            .setFooter({text: FOOTER_MESSAGE})
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setTimestamp(),
+        ],
+      });
+      // exit, as anauthenticated
+      return;
+    }
 
     const id = interaction.options.get('id')?.value as string;
     const {chest, floor, guardian, puzzle, stray, theme, user, week} =
