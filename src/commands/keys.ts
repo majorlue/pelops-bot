@@ -7,9 +7,6 @@ import {Command} from '../interfaces';
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
 const {themes, keyFights} = towerConfig;
 
-const keyFormat: Record<string, string> = {};
-for (const theme of themes) keyFormat[theme] = '\u200b';
-
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName('keys')
@@ -19,6 +16,8 @@ const command: Command = {
     await interaction.deferReply({ephemeral: true});
 
     const week = currentWeek();
+    const keyFormat: Record<string, string> = {};
+    for (const theme of themes) keyFormat[theme] = '\u200b';
 
     // db query for current week floors with key fights as either guardian or stray
     const keyFloors = await prisma.floor.findMany({
