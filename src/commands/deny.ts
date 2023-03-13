@@ -1,10 +1,11 @@
 import {SlashCommandBuilder} from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
-import {botConfig, config} from '../config';
+import {botConfig, config, towerConfig} from '../config';
 import {prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
+const {towerSprites} = towerConfig;
 const {administrators} = botConfig;
 
 const command: Command = {
@@ -64,7 +65,11 @@ const command: Command = {
       })
       .setTitle(`${theme} F${floor} Submission Denied`)
       .setFields(...embedFields)
-      .setThumbnail('https://orna.guide/static/orna/img/towers/1_3.png')
+      .setThumbnail(
+        towerSprites[
+          (theme as 'Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis')
+        ]
+      )
       .setFooter({text: FOOTER_MESSAGE})
       .setColor(EMBED_COLOUR as ColorResolvable)
       .setTimestamp();
