@@ -2,6 +2,7 @@ import {
   SlashCommandBuilder,
   SlashCommandIntegerOption,
   SlashCommandStringOption,
+  SlashCommandUserOption,
 } from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import client from '..';
@@ -16,16 +17,21 @@ const themeOpts = themes.map(x => ({name: x, value: x}));
 
 const themeOptions = new SlashCommandStringOption()
   .setName('theme')
-  .setDescription('Tower Theme to submit')
+  .setDescription('Tower Theme to filter for')
   .setRequired(false)
   .setChoices(...themeOpts);
 
 const floorOptions = new SlashCommandIntegerOption()
   .setName('floor')
-  .setDescription('Floor Number to submit')
+  .setDescription('Floor Number to filter for')
   .setRequired(false)
   .setMinValue(minHeight)
   .setMaxValue(maxHeight);
+
+const userOption = new SlashCommandUserOption()
+  .setName('user')
+  .setDescription('User to filter for')
+  .setRequired(false);
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -38,6 +44,7 @@ const command: Command = {
         .setDescription('List submissions')
         .addStringOption(themeOptions)
         .addIntegerOption(floorOptions)
+        .addUserOption(userOption)
     )
 
     .addSubcommand(subcommand =>
@@ -67,6 +74,10 @@ const command: Command = {
     const week = currentWeek();
     const theme = interaction.options.get('theme')?.value as string | undefined;
     const floor = interaction.options.get('floor')?.value as number | undefined;
+    const submissionUser = interaction.options.get('user')?.value as
+      | string
+      | undefined;
+
     const approveId = interaction.options.get('approve_id')?.value as
       | string
       | undefined;
@@ -212,7 +223,7 @@ const command: Command = {
       await interaction.editReply({embeds: [responseEmbed]});
     } else {
       const submissions = await prisma.floorSubmission.findMany({
-        where: {week, theme, floor, resolved: false},
+        where: {week, theme, floor, resolved: false, user: submissionUser},
       });
       submissions.sort((a, b) => a.floor - b.floor);
       submissions.sort((a, b) => (a.theme > b.theme ? -1 : 1));
@@ -227,6 +238,7 @@ const command: Command = {
           await client.users.fetch(user)
         ).toJSON()) as Record<string, unknown>;
 
+        if (!themeFloors[theme]) themeFloors[theme] = [];
         themeFloors[theme].push(floor);
         desc += `**${theme}** **F${floor}**\n`;
         if (guardian) desc += '`Floor Guardian`: ' + guardian + '\n';
@@ -254,7 +266,7 @@ const command: Command = {
           name: `Week of ${week} | ${submissions.length} submissions`,
         })
         .setTitle('Floor Submissions')
-        .setDescription(desc)
+        .setDescription(desc || 'No submissions found!')
         .setFooter({text: FOOTER_MESSAGE})
         .setColor(EMBED_COLOUR as ColorResolvable)
         .setTimestamp();
