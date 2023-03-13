@@ -1,6 +1,7 @@
 import {SlashCommandBuilder} from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import {config} from '../config';
+import {dayjs} from '../handlers';
 import {Command} from '../interfaces/command';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
@@ -77,7 +78,9 @@ const command: Command = {
       })
       .addFields({
         // second header text for current UTC display and insert heights code block
-        name: `${weekdays[day]} ${hour < 10 ? `0${hour}` : hour}${minutes} UTC`,
+        name: `${dayjs(date).format('dddd')} ${
+          hour < 10 ? `0${hour}` : hour
+        }${minutes} UTC`,
         value: floorEmbed,
       })
       .setFooter({text: FOOTER_MESSAGE})
