@@ -34,7 +34,7 @@ const towerConfig = {
   keyFights: ['Tower Guard'],
   minHeight: 1,
   maxHeight: 49,
-  minChests: 0,
+  minChests: 1,
   maxChests: 5,
   puzzles: {
     lights: [1, 2, 3],

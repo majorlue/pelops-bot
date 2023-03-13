@@ -5,10 +5,10 @@ import {
   adminCommandEmbed,
   checkPerms,
   contribCommandEmbed,
+  leadMonsters,
   logger,
   ownerCommandEmbed,
 } from '../handlers';
-import {leadMonsters} from './onReady';
 
 // define fuzzy search options
 const searchOpts = {
@@ -28,7 +28,7 @@ const onInteraction = async (interaction: Interaction) => {
       const start = Date.now();
       const query = options.getFocused();
 
-      const fuzzySearch = search(query, leadMonsters, searchOpts).map(
+      const fuzzySearch = search(query, await leadMonsters, searchOpts).map(
         result => result.target
       );
       await interaction.respond(

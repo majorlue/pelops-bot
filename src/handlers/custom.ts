@@ -6,6 +6,10 @@ import {prisma} from '.';
 const {FOOTER_MESSAGE, EMBED_COLOUR, BOT_OWNER} = config;
 const {towerSprites} = towerConfig;
 
+export const leadMonsters = prisma.encounter
+  .findMany()
+  .then(response => response.map(x => x.leader));
+
 export async function approveSubmission(submission: FloorSubmission) {
   const {id, chest, floor, guardian, puzzle, stray, theme, week} = submission;
 
@@ -82,6 +86,25 @@ export async function checkPerms(userId: string) {
     contrib: [...owners, ...admins, ...contribs].includes(userId),
   };
   return permsObj;
+}
+
+export function monsterNotFoundEmbed(interaction: CommandInteraction) {
+  return {
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({
+          name: `Tower Floor Submission`,
+          iconURL: interaction.user.avatarURL() || '',
+        })
+        .setTitle(`Invalid Input`)
+        .setDescription(
+          'Monster not found. Please use one of the provided responses!'
+        )
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp(),
+    ],
+  };
 }
 
 export function ownerCommandEmbed(interaction: CommandInteraction) {

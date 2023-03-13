@@ -6,7 +6,14 @@ import {
 import axios from 'axios';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import {config, towerConfig} from '../config';
-import {approveSubmission, currentWeek, logger, prisma} from '../handlers';
+import {
+  approveSubmission,
+  currentWeek,
+  leadMonsters,
+  logger,
+  monsterNotFoundEmbed,
+  prisma,
+} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR, IMAGE_PATH} = config;
@@ -110,8 +117,18 @@ const command: Command = {
     embedFields.push({name: 'Tower Theme', value: theme, inline: true});
     embedFields.push({name: `Floor`, value: floor.toString(), inline: true});
 
-    if (guardian) embedFields.push({name: 'Floor Guardian', value: guardian});
-    if (stray) embedFields.push({name: 'Stray Monster', value: stray});
+    // check whether monster input matches a provided autocomplete option
+    if (guardian)
+      if (!(await leadMonsters).includes(guardian)) {
+        await interaction.editReply(monsterNotFoundEmbed(interaction));
+        return;
+      } else embedFields.push({name: 'Floor Guardian', value: guardian});
+    if (stray)
+      if (!(await leadMonsters).includes(stray)) {
+        await interaction.editReply(monsterNotFoundEmbed(interaction));
+        return;
+      } else embedFields.push({name: 'Stray Monster', value: stray});
+
     if (chest) embedFields.push({name: 'Chest Count', value: chest.toString()});
     if (puzzle) embedFields.push({name: 'Puzzle', value: puzzle});
 

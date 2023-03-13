@@ -1,17 +1,14 @@
 import {REST} from '@discordjs/rest';
 import {Routes} from 'discord-api-types/v9';
 import {ActivityType, Client} from 'discord.js';
-// Importing commandHash so it's loaded upon startup, rather than on the first command after startup
 import {commandHash, commandList, presenceCmds} from '../commands';
 import {config} from '../config';
-import {logger, prisma} from '../handlers';
+import {leadMonsters, logger} from '../handlers';
 
 // bot client token, for use with discord API
 const BOT_TOKEN = config.BOT_TOKEN;
 // interval to change bot presence (status message)
 const PRESENCE_TIMER = Number(config.PRESENCE_TIMER) * 1000; // convert s to ms
-
-const leadMonsters: string[] = [];
 
 // complete startup tasks, log time taken
 const onReady = async (client: Client) => {
@@ -44,12 +41,10 @@ const onReady = async (client: Client) => {
   });
 
   start = Date.now();
+
   // retrieve encounters and load them as autocomplete suggestions
-  (await prisma.encounter.findMany()).forEach(encounter =>
-    leadMonsters.push(encounter.leader)
-  );
   time = `${Date.now() - start}ms`;
-  logger.info(`Loaded ${leadMonsters.length} encounters in ${time}`, {
+  logger.info(`Loaded ${(await leadMonsters).length} encounters in ${time}`, {
     type: 'startup',
     time,
   });
@@ -66,4 +61,4 @@ const onReady = async (client: Client) => {
   });
 };
 
-export {onReady, leadMonsters};
+export {onReady};
