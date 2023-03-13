@@ -128,7 +128,7 @@ const command: Command = {
         description += `**${userObj.tag}**: ${dateAdded}\n`;
       }
       const responseEmbed = new EmbedBuilder()
-        .setTitle(`Contributor List`)
+        .setTitle(`Contributors (${contributorIds.length} total)`)
         .setDescription(description)
         .setFooter({text: FOOTER_MESSAGE})
         .setColor(EMBED_COLOUR as ColorResolvable)
