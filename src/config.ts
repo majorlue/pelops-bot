@@ -28,7 +28,7 @@ const botConfig = {
   moderators: [],
   adminChannels: [
     '1084625892325736489', // Pancke, bot-channel
-    '1084625892325736489', // Cade Labs, pelops-bot category
+    '1084699986341658654', // Cade Labs, submission-commands
   ],
 };
 
