@@ -240,9 +240,9 @@ const command: Command = {
         themeFloors[theme].push(floor);
         desc += `**${theme}** **F${floor}**\n`;
         if (guardian) desc += '`Floor Guardian`: ' + guardian + '\n';
-        if (stray) desc += '`Stray Monster`: ' + guardian + '\n';
-        if (puzzle) desc += '`Tower Puzzle`: ' + guardian + '\n';
-        if (chest) desc += '`Chest Count`: ' + guardian + '\n';
+        if (stray) desc += '`Stray Monster`: ' + stray + '\n';
+        if (puzzle) desc += '`Tower Puzzle`: ' + puzzle + '\n';
+        if (chest) desc += '`Chest Count`: ' + chest + '\n';
 
         desc += `\`Submitted by\`: ${userObj.tag}` + '\n';
         desc += `\`Submission ID\`: ${id}\n\n`;
