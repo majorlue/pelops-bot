@@ -91,9 +91,6 @@ const command: Command = {
         )
     ),
   run: async interaction => {
-    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-    await interaction.deferReply({ephemeral: true});
-
     const week = currentWeek();
     const theme = interaction.options.get('theme')?.value as string;
     const floor = interaction.options.get('floor')?.value as number;
@@ -183,7 +180,7 @@ const command: Command = {
     const {tag: user} = interaction.user;
     logger.info(
       (isContributor ? '(Contributor) ' : '') +
-        `${user} added submission for ${theme} F${floor}`,
+        `${user} added submission: ${week} ${theme} F${floor}`,
       {
         command: command.data.name,
         type: 'info',

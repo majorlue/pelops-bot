@@ -33,9 +33,6 @@ const command: Command = {
     .addStringOption(themeOptions)
     .addIntegerOption(floorOptions),
   run: async interaction => {
-    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-    await interaction.deferReply({ephemeral: true});
-
     const week = currentWeek();
     const theme = interaction.options.get('theme')?.value as
       | 'Selene'

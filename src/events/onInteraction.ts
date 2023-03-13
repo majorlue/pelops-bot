@@ -1,7 +1,13 @@
 import {Interaction} from 'discord.js';
 import {go as search} from 'fuzzysort';
-import {commandHash} from '../commands';
-import {logger} from '../handlers';
+import {adminCmds, commandHash, contribCmds, ownerCmds} from '../commands';
+import {
+  adminCommandEmbed,
+  checkPerms,
+  contribCommandEmbed,
+  logger,
+  ownerCommandEmbed,
+} from '../handlers';
 import {leadMonsters} from './onReady';
 
 // define fuzzy search options
@@ -43,9 +49,24 @@ const onInteraction = async (interaction: Interaction) => {
   if (interaction.isCommand()) {
     // we do a little instrumentation
     const start = Date.now();
-    const command = interaction.commandName;
 
-    await commandHash[command](interaction);
+    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
+    await interaction.deferReply({ephemeral: true});
+    const {commandName: command, user} = interaction;
+
+    // check if user has required permissions for elevated commands
+    if (ownerCmds.includes(command) && !(await checkPerms(user.id)).owner) {
+      await interaction.editReply(ownerCommandEmbed(interaction));
+      return;
+    }
+    if (adminCmds.includes(command) && !(await checkPerms(user.id)).admin) {
+      await interaction.editReply(adminCommandEmbed(interaction));
+      return;
+    }
+    if (contribCmds.includes(command) && !(await checkPerms(user.id)).contrib) {
+      await interaction.editReply(contribCommandEmbed(interaction));
+      return;
+    } else await commandHash[command](interaction);
 
     const time = `${Date.now() - start}ms`;
     logger.info(`Executed command /${command} in ${time}`, {

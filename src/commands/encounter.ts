@@ -19,9 +19,6 @@ const command: Command = {
         .setAutocomplete(true)
     ),
   run: async interaction => {
-    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-    await interaction.deferReply({ephemeral: true});
-
     const userQuery = interaction.options.get('monster')?.value;
     const encounter = await prisma.encounter.findUnique({
       where: {leader: userQuery as string},

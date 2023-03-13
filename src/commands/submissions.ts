@@ -5,12 +5,11 @@ import {
 } from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import client from '..';
-import {botConfig, config, towerConfig} from '../config';
+import {config, towerConfig} from '../config';
 import {currentWeek, logger, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
-const {administrators} = botConfig;
 
 const {maxHeight, minHeight, themes, towerSprites} = towerConfig;
 const themeOpts = themes.map(x => ({name: x, value: x}));
@@ -65,31 +64,6 @@ const command: Command = {
     ),
 
   run: async interaction => {
-    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-    await interaction.deferReply({ephemeral: true});
-
-    // return if user is not a bot administrator
-    if (!administrators.includes(interaction.user.id)) {
-      await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setAuthor({
-              name: interaction.user.tag,
-              iconURL: interaction.user.avatarURL() || '',
-            })
-            .setTitle(`Permission Denied`)
-            .setDescription(
-              'Only bot administrators may use this command, sorry!'
-            )
-            .setFooter({text: FOOTER_MESSAGE})
-            .setColor(EMBED_COLOUR as ColorResolvable)
-            .setTimestamp(),
-        ],
-      });
-      // exit, as anauthenticated
-      return;
-    }
-
     const week = currentWeek();
     const theme = interaction.options.get('theme')?.value as string | undefined;
     const floor = interaction.options.get('floor')?.value as number | undefined;
@@ -179,7 +153,7 @@ const command: Command = {
 
       // logging human-readable command information
       const {tag: user} = interaction.user;
-      logger.info(`${user} approved submission for ${theme} F${floor}`, {
+      logger.info(`${user} approved submission: ${approveId}`, {
         command: command.data.name,
         type: 'info',
         user: user,
@@ -229,7 +203,7 @@ const command: Command = {
 
       // logging human-readable command information
       const {tag: user} = interaction.user;
-      logger.info(`${user} denied submission for ${theme} F${floor}`, {
+      logger.info(`${user} denied submission: ${denyId}`, {
         command: command.data.name,
         type: 'info',
         user: user,
@@ -242,15 +216,8 @@ const command: Command = {
       });
       submissions.sort((a, b) => a.floor - b.floor);
       submissions.sort((a, b) => (a.theme > b.theme ? -1 : 1));
-      const responseEmbed = new EmbedBuilder()
-        .setAuthor({
-          name: `Week of ${week} | ${submissions.length} submissions`,
-        })
-        .setTitle('Floor Submissions')
-        .setFooter({text: FOOTER_MESSAGE})
-        .setColor(EMBED_COLOUR as ColorResolvable)
-        .setTimestamp();
 
+      let desc = '';
       for (const submission of submissions) {
         const {id, user, theme, floor, chest, guardian, puzzle, stray} =
           submission;
@@ -259,18 +226,25 @@ const command: Command = {
           await client.users.fetch(user)
         ).toJSON()) as Record<string, unknown>;
 
-        const field = {name: `${theme} F${floor}`, value: ''};
+        desc += `**${theme}** F**${floor}**\n`;
+        if (guardian) desc += '`Floor Guardian`: ' + guardian + '\n';
+        if (stray) desc += '`Stray Monster`: ' + guardian + '\n';
+        if (puzzle) desc += '`Tower Puzzle`: ' + guardian + '\n';
+        if (chest) desc += '`Chest Count`: ' + guardian + '\n';
 
-        if (guardian) field.value = '`Floor Guardian`: ' + guardian + '\n';
-        if (stray) field.value = '`Stray Monster`: ' + guardian + '\n';
-        if (puzzle) field.value = '`Tower Puzzle`: ' + guardian + '\n';
-        if (chest) field.value = '`Chest Count`: ' + guardian + '\n';
-
-        field.value += `\`Submitted by\`: ${userObj.tag}` + '\n';
-        field.value += `\`Submission ID\`: ${id}`;
-
-        responseEmbed.addFields(field);
+        desc += `\`Submitted by\`: ${userObj.tag}` + '\n';
+        desc += `\`Submission ID\`: ${id}\n\n`;
       }
+
+      const responseEmbed = new EmbedBuilder()
+        .setAuthor({
+          name: `Week of ${week} | ${submissions.length} submissions`,
+        })
+        .setTitle('Floor Submissions')
+        .setDescription(desc)
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp();
 
       await interaction.editReply({embeds: [responseEmbed]});
     }

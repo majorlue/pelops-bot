@@ -61,7 +61,9 @@ const onReady = async (client: Client) => {
     if (client.user)
       client.user.setActivity(commands[index], {type: ActivityType.Listening});
   }, PRESENCE_TIMER);
-  logger.info(`Set presence to rotate between: ${commands.join(', ')}`);
+  logger.info(`Set presence to rotate between: ${commands.join(', ')}`, {
+    type: 'startup',
+  });
 };
 
 export {onReady, leadMonsters};

@@ -2,40 +2,40 @@ import {SlashCommandBuilder} from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import client from '..';
 import {config} from '../config';
-import {dayjs, logger, prisma} from '../handlers';
+import {logger, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
 
 const command: Command = {
   data: new SlashCommandBuilder()
-    .setName('contributor')
-    .setDescription('Add or remove approved contributors')
+    .setName('admin')
+    .setDescription('Add, remove or list admins')
 
     .addSubcommand(subcommand =>
       subcommand
         .setName('add')
-        .setDescription('Add a new contributor')
+        .setDescription('Add a new admin')
         .addUserOption(option =>
           option
             .setName('add_user')
-            .setDescription('User to mark as a contributor')
+            .setDescription('User to mark as an admin')
             .setRequired(true)
         )
     )
     .addSubcommand(subcommand =>
       subcommand
         .setName('remove')
-        .setDescription('Remove a current contributor')
+        .setDescription('Remove a current admin')
         .addUserOption(option =>
           option
             .setName('remove_user')
-            .setDescription('User to remove as a contributor')
+            .setDescription('User to remove as an admin')
             .setRequired(true)
         )
     )
     .addSubcommand(subcommand =>
-      subcommand.setName('list').setDescription('List all current contributors')
+      subcommand.setName('list').setDescription('List all current admins')
     ),
 
   run: async interaction => {
@@ -48,8 +48,8 @@ const command: Command = {
 
     // TODO: figure out better slash command handling than checking for defined vars
     if (addUser) {
-      // add the target user as a contributor in db
-      await prisma.contributor.upsert({
+      // add the target user as an admin in db
+      await prisma.admin.upsert({
         where: {id: addUser},
         create: {id: addUser},
         update: {id: addUser},
@@ -64,17 +64,15 @@ const command: Command = {
           name: userObj.tag as string,
           iconURL: userObj.avatarURL as string,
         })
-        .setTitle(`Added Contributor`)
-        .setDescription(
-          'They will now be able to use `/submit` to directly modify public Tower information'
-        )
+        .setTitle(`Added Admin`)
+        .setDescription("They'll now be able to perform admin actions!")
         .setFooter({text: FOOTER_MESSAGE})
         .setColor(EMBED_COLOUR as ColorResolvable)
         .setTimestamp();
 
       // logging human-readable command information
       const {tag: user} = interaction.user;
-      logger.info(`${user} added contributor: ${userObj.tag}`, {
+      logger.info(`${user} added admin: ${userObj.tag}`, {
         command: command.data.name,
         type: 'info',
         user: user,
@@ -82,9 +80,9 @@ const command: Command = {
 
       await interaction.editReply({embeds: [responseEmbed]});
     } else if (removeUser) {
-      // TODO: error handling for deleting user that isn't a contributor (record to delete DNE)
-      // remove the target user as a contributor in db
-      await prisma.contributor.delete({where: {id: removeUser}});
+      // TODO: error handling for deleting user that isn't an admin (record to delete DNE)
+      // remove the target user as an admin in db
+      await prisma.admin.delete({where: {id: removeUser}});
       // retrieve target user profile (for tag, avatar)
       const userObj = (await (
         await client.users.fetch(removeUser)
@@ -96,16 +94,14 @@ const command: Command = {
           iconURL: userObj.avatarURL as string,
         })
         .setTitle(`Removed Contributor`)
-        .setDescription(
-          'They will now be subject to the submissions process when using `/submit`.'
-        )
+        .setDescription('They can no longer perform admin actions!')
         .setFooter({text: FOOTER_MESSAGE})
         .setColor(EMBED_COLOUR as ColorResolvable)
         .setTimestamp();
 
       // logging human-readable command information
       const {tag: user} = interaction.user;
-      logger.info(`${user} removed contributor: ${userObj.tag}`, {
+      logger.info(`${user} removed admin: ${userObj.tag}`, {
         command: command.data.name,
         type: 'info',
         user: user,
@@ -113,28 +109,31 @@ const command: Command = {
 
       await interaction.editReply({embeds: [responseEmbed]});
     } else {
-      const contributorIds = (await prisma.contributor.findMany()).sort(
+      // display with newest admin first
+      const adminIds = (await prisma.admin.findMany()).sort(
         (a, b) => a.createdOn.valueOf() - b.createdOn.valueOf()
       );
 
-      let description = '';
-      for (const contributor of contributorIds) {
-        const {id, createdOn} = contributor;
-        const dateAdded = dayjs(createdOn).format('DD/MM/YYYY');
+      const responseEmbeds = [];
+      for (const admin of adminIds) {
+        const {id, createdOn} = admin;
         const userObj = (await (
           await client.users.fetch(id)
         ).toJSON()) as Record<string, unknown>;
 
-        description += `**${userObj.tag}**: ${dateAdded}\n`;
+        responseEmbeds.push(
+          new EmbedBuilder()
+            .setAuthor({
+              name: userObj.tag as string,
+              iconURL: userObj.avatarURL as string,
+            })
+            .setFooter({text: FOOTER_MESSAGE})
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setTimestamp(createdOn)
+        );
       }
-      const responseEmbed = new EmbedBuilder()
-        .setTitle(`Contributor List`)
-        .setDescription(description)
-        .setFooter({text: FOOTER_MESSAGE})
-        .setColor(EMBED_COLOUR as ColorResolvable)
-        .setTimestamp();
-
-      await interaction.editReply({embeds: [responseEmbed]});
+      // only display 10 newest admins, as discord supports 10 embeds per msg
+      await interaction.editReply({embeds: responseEmbeds.slice(0, 10)});
     }
   },
 };

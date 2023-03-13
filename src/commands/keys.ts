@@ -12,9 +12,6 @@ const command: Command = {
     .setName('keys')
     .setDescription('Retrieve floors containing key encounters'),
   run: async interaction => {
-    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-    await interaction.deferReply({ephemeral: true});
-
     const week = currentWeek();
     const keyFormat: Record<string, string> = {};
     for (const theme of themes) keyFormat[theme] = '\u200b';

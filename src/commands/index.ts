@@ -1,5 +1,6 @@
 import {CommandInteraction} from 'discord.js';
 import {Command} from '../interfaces';
+import admin from './admin';
 import contributor from './contributor';
 import encounter from './encounter';
 import floors from './floors';
@@ -9,6 +10,7 @@ import submit from './submit';
 import tower from './tower';
 
 const commandList: Command[] = [
+  admin,
   contributor,
   encounter,
   floors,
@@ -24,8 +26,21 @@ const commandHash: Record<
 > = {};
 for (const command of commandList) commandHash[command.data.name] = command.run;
 
-// create array of commands to cycle through as status
-const exclude = ['contributor', 'submissions'];
-const presenceCmds = Object.keys(commandHash).filter(x => !exclude.includes(x));
+// elevated commands -- not for base users
+const ownerCmds = ['admin'];
+const adminCmds = ['contributor'];
+const contribCmds = ['submissions'];
 
-export {commandHash, commandList, presenceCmds};
+// cycle through non-admin commands as status
+const presenceCmds = Object.keys(commandHash).filter(
+  x => ![...ownerCmds, ...adminCmds, ...contribCmds].includes(x)
+);
+
+export {
+  commandList,
+  commandHash,
+  ownerCmds,
+  adminCmds,
+  contribCmds,
+  presenceCmds,
+};

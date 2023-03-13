@@ -4,6 +4,7 @@ require('newrelic');
 
 const envVars: Record<string, string | number | undefined> = {
   BOT_TOKEN: process.env.BOT_TOKEN,
+  BOT_OWNER: process.env.BOT_OWNER || '153296359871479809',
   EMBED_COLOUR: process.env.EMBED_COLOUR || 'DarkPurple',
   FOOTER_MESSAGE: process.env.FOOTER_MESSAGE || 'made by Major#1005',
   IMAGE_PATH: 'https://orna.guide/static/orna/img/',
@@ -20,17 +21,6 @@ Object.keys(envVars).forEach(key => {
 
   config[key] = value as string;
 });
-
-const botConfig = {
-  administrators: [
-    '153296359871479809', // Major
-  ],
-  moderators: [],
-  adminChannels: [
-    '1084625892325736489', // Pancke, bot-channel
-    '1084699986341658654', // Cade Labs, submission-commands
-  ],
-};
 
 const towerConfig = {
   themes: ['Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis'],
@@ -79,4 +69,4 @@ const towerConfig = {
 };
 
 // export config var
-export {config, towerConfig, botConfig};
+export {config, towerConfig};

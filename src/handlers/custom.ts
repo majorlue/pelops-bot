@@ -1,9 +1,9 @@
 import {FloorSubmission} from '@prisma/client';
-import {ColorResolvable, EmbedBuilder} from 'discord.js';
+import {ColorResolvable, CommandInteraction, EmbedBuilder} from 'discord.js';
 import {config, towerConfig} from '../config';
-import {prisma} from '../handlers';
+import {prisma} from '.';
 
-const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
+const {FOOTER_MESSAGE, EMBED_COLOUR, BOT_OWNER} = config;
 const {towerSprites} = towerConfig;
 
 export async function approveSubmission(submission: FloorSubmission) {
@@ -69,4 +69,69 @@ export async function approveSubmission(submission: FloorSubmission) {
     .setTimestamp();
 
   return responseEmbed;
+}
+
+export async function checkPerms(userId: string) {
+  const owners = [BOT_OWNER];
+  const admins = (await prisma.admin.findMany()).map(x => x.id);
+  const contribs = (await prisma.contributor.findMany()).map(x => x.id);
+
+  const permsObj = {
+    owner: [...owners].includes(userId),
+    admin: [...owners, ...admins].includes(userId),
+    contrib: [...owners, ...admins, ...contribs].includes(userId),
+  };
+  console.log(permsObj);
+  return permsObj;
+}
+
+export function ownerCommandEmbed(interaction: CommandInteraction) {
+  return {
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({
+          name: interaction.user.tag,
+          iconURL: interaction.user.avatarURL() || '',
+        })
+        .setTitle(`Permission Denied`)
+        .setDescription('This command is only available to Owners!')
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp(),
+    ],
+  };
+}
+
+export function adminCommandEmbed(interaction: CommandInteraction) {
+  return {
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({
+          name: interaction.user.tag,
+          iconURL: interaction.user.avatarURL() || '',
+        })
+        .setTitle(`Permission Denied`)
+        .setDescription('This command is only available to Admins!')
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp(),
+    ],
+  };
+}
+
+export function contribCommandEmbed(interaction: CommandInteraction) {
+  return {
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({
+          name: interaction.user.tag,
+          iconURL: interaction.user.avatarURL() || '',
+        })
+        .setTitle(`Permission Denied`)
+        .setDescription('This command is only available to Contributors!')
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp(),
+    ],
+  };
 }

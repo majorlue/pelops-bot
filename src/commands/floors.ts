@@ -11,9 +11,6 @@ const command: Command = {
     .setName('floors')
     .setDescription('List current Tower floor counts.'),
   run: async interaction => {
-    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-    await interaction.deferReply({ephemeral: true});
-
     // get time when command was sent, and get UTC time values
     const date = new Date();
     const day = date.getUTCDay(); // sunday is 0 with 6 being Saturday

@@ -19,13 +19,18 @@ const start = async () => {
     if (guild.available) {
       // retrieve new server count
       const serverCount = (await client.guilds.fetch()).size;
-      logger.info(`Client joined guild #${serverCount}: ${guild.name}`);
+      logger.info(`Client joined guild #${serverCount}: ${guild.name}`, {
+        type: 'info',
+      });
     }
   });
 
   // log server kick
   client.on('guildDelete', guild => {
-    if (guild.available) logger.info(`Client removed from: ${guild.name}`);
+    if (guild.available)
+      logger.info(`Client removed from: ${guild.name}`, {
+        type: 'info',
+      });
   });
 
   // handle user interactions (eg. commands)
