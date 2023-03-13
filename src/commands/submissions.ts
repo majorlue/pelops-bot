@@ -251,7 +251,7 @@ const command: Command = {
       // discord has an embed description limit of 4000
       if (desc.length > 4000) {
         desc =
-          'There are too many submissions! Try specifying `theme` and/or `floor`\n\n';
+          'There are too many submissions! Try specifying `theme`, `floor` or `user`\n\n';
         for (const theme of themes) {
           const count = submissions.filter(x => x.theme === theme).length;
           desc += `**${theme}** has ${count} submissions:\n`;
