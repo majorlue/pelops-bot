@@ -2,13 +2,27 @@
 
 Heya, this is the repo for the discord bot Pelops. The purpose of this project is to provide a helper bot for Orna's Towers of Olympia. It's meant to provide easy access to Tower encounters, Tower floors, current Tower layout (fights, chests, puzzles) and potentially more. Slowly, but surely, features are being completed. Thanks for bearing with me =)
 
-### Core Features (wip):
+### Core Features:
 
 ✅ `/floors`: displays the current height for each Tower theme<br>
 ✅ `/encounter`: displays Tower fight information (floor guardians, strays)<br>
 ✅ `/submit`: allows **community contribution** for the current week's Tower layout<br>
 ✅ `/tower`: displays the specified theme's current layout, including floor guardians, stray monsters, puzzle types/difficulty and chests.<br>
 ✅ `/keys`: displays the current week's Tower floors with key fights<br>
+
+### How It Works
+
+The expectation is for this bot to be a central source of community information regarding Towers. As such, it heavily relies on community contribution (more on that later). The most useful commands will be `/tower` and `/keys`, as it returns information about Towers in the current week. These commands won't work without players submitting information for the bot to display, though, so that's handled via `/submit`.
+
+###### `/submit` command
+
+Players can use this command to contribute information to the project, allowing anyone else to use it later that week.
+
+The command allows submitting **floor guardians**, **stray monsters**, **chest count** and **puzzles** information for a specified Tower theme and floor. This only allows singular inputs for simplicity sake, however. The bot does make the process easier by offering static choices or autocompletion (eg. for guardians/strays).
+
+Submissions follow an approval process. This means that `/tower` or `/keys` will not reflect submissions immediately. Submissions must be **approved manually** by a moderator before floor information is publicly modified. This is to ensure information accuracy, and to prevent people who want to troll.
+
+If you'd like to help with moderation feel free to reach out to Major#1005 on Discord. Help is very, very appreciated <3
 
 ### GitHub Issues
 
