@@ -255,7 +255,8 @@ const command: Command = {
         for (const theme of themes) {
           const count = submissions.filter(x => x.theme === theme).length;
           desc += `**${theme}** has ${count} submissions:\n`;
-          desc += themeFloors[theme].join(', ') + '\n\n';
+          desc +=
+            (themeFloors[theme] ? themeFloors[theme].join(', ') : '') + '\n\n';
         }
       }
 
