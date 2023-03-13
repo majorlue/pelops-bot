@@ -218,6 +218,7 @@ const command: Command = {
       submissions.sort((a, b) => (a.theme > b.theme ? -1 : 1));
 
       let desc = '';
+      const themeFloors: Record<string, number[]> = {};
       for (const submission of submissions) {
         const {id, user, theme, floor, chest, guardian, puzzle, stray} =
           submission;
@@ -226,7 +227,8 @@ const command: Command = {
           await client.users.fetch(user)
         ).toJSON()) as Record<string, unknown>;
 
-        desc += `**${theme}** F**${floor}**\n`;
+        themeFloors[theme].push(floor);
+        desc += `**${theme}** **F${floor}**\n`;
         if (guardian) desc += '`Floor Guardian`: ' + guardian + '\n';
         if (stray) desc += '`Stray Monster`: ' + guardian + '\n';
         if (puzzle) desc += '`Tower Puzzle`: ' + guardian + '\n';
@@ -234,6 +236,17 @@ const command: Command = {
 
         desc += `\`Submitted by\`: ${userObj.tag}` + '\n';
         desc += `\`Submission ID\`: ${id}\n\n`;
+      }
+
+      // discord has an embed description limit of 4000
+      if (desc.length > 4000) {
+        desc =
+          'There are too many submissions! Try specifying `theme` and/or `floor`\n\n';
+        for (const theme of themes) {
+          const count = submissions.filter(x => x.theme === theme).length;
+          desc += `**${theme}** has ${count} submissions:\n`;
+          desc += themeFloors[theme].join(', ') + '\n\n';
+        }
       }
 
       const responseEmbed = new EmbedBuilder()
