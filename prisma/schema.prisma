@@ -11,10 +11,12 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+// TODO: map field names to underlying db
 model Tower {
-  theme  String // Tower Theme eg. Prometheus
-  week   String
-  floors Floor[] // Array of floors and their encounters
+  theme            String // Tower Theme eg. Prometheus
+  week             String
+  floors           Floor[] // Array of floors and their encounters
+  floorSubmissions FloorSubmission[]
 
   // Defining unique constraint to be combination of theme/week
   @@id([theme, week])
@@ -22,18 +24,34 @@ model Tower {
 }
 
 model Floor {
-  id         String   @id @default(uuid())
-  number     Int // Floor number 1-50
-  guardians  String[] // Array of primary fight sprite
-  strays     String[] // Array of primary fight sprite
-  puzzles    String[] // Array of puzzle type, difficulty
-  chests     String[] // Array of chest bufftype/key
+  theme     String   @map("tower_theme")
+  week      String   @map("tower_week")
+  floor     Int      @map("tower_floor") // Floor number 1-50
+  guardians String[] // Array of primary fight sprite
+  strays    String[] // Array of primary fight sprite
+  puzzles   String[] // Array of puzzle type, difficulty
+  chests    Int? // Chest count
   // Relation to Theme/Week
-  Tower      Tower    @relation(fields: [towerTheme, towerWeek], references: [theme, week])
-  towerTheme String   @map("tower_theme")
-  towerWeek  String   @map("tower_week")
+  tower     Tower    @relation(fields: [theme, week], references: [theme, week])
 
+  @@id([theme, week, floor])
   @@map("floors")
+}
+
+model FloorSubmission {
+  id       String  @id @default(uuid())
+  theme    String  @map("tower_theme")
+  week     String  @map("tower_week")
+  floor    Int     @map("tower_floor") // Floor number 1-50
+  guardian String? // Primary fight sprite submission
+  stray    String? // Primary fight sprite submission
+  puzzle   String? // Puzzle submission
+  chest    Int? // Chest count
+  // Relation to Theme/Week
+  tower    Tower   @relation(fields: [theme, week], references: [theme, week])
+  user     String
+
+  @@map("floor_submissions")
 }
 
 model Encounter {

@@ -2,9 +2,14 @@ import {REST} from '@discordjs/rest';
 import {Routes} from 'discord-api-types/v9';
 import {ActivityType, Client} from 'discord.js';
 // Importing commandHash so it's loaded upon startup, rather than on the first command after startup
-import {commandHash, commandList} from '../commands';
+import {commandHash, commandList, presenceCmds} from '../commands';
 import {config} from '../config';
 import {logger, prisma} from '../handlers';
+
+// bot client token, for use with discord API
+const BOT_TOKEN = config.BOT_TOKEN;
+// interval to change bot presence (status message)
+const PRESENCE_TIMER = Number(config.PRESENCE_TIMER) * 1000; // convert s to ms
 
 const leadMonsters: string[] = [];
 
@@ -14,7 +19,7 @@ const onReady = async (client: Client) => {
   const clientId = client.user.id;
   const serverCount = (await client.guilds.fetch()).size;
 
-  const rest = new REST().setToken(config.BOT_TOKEN);
+  const rest = new REST().setToken(BOT_TOKEN);
 
   logger.info(`Serving ${serverCount} servers as ${client.user?.tag}`, {
     type: 'startup',
@@ -49,11 +54,14 @@ const onReady = async (client: Client) => {
     time,
   });
 
-  client.user.setPresence({
-    activities: [
-      {type: ActivityType.Listening, name: `${serverCount} servers`},
-    ],
-  });
+  // periodically rotate bot status message with user commands
+  const commands = presenceCmds.map(x => '/' + x); // prepend slash to each command name
+  setInterval(() => {
+    const index = Math.floor(Math.random() * commands.length);
+    if (client.user)
+      client.user.setActivity(commands[index], {type: ActivityType.Listening});
+  }, PRESENCE_TIMER);
+  logger.info(`Set presence to rotate between: ${commands.join(', ')}`);
 };
 
 export {onReady, leadMonsters};

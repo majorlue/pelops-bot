@@ -17,10 +17,9 @@ const onInteraction = async (interaction: Interaction) => {
   if (interaction.isAutocomplete()) {
     const {commandName: command, options} = interaction;
 
-    if (command === 'encounter') {
+    if (command === 'encounter' || 'submit') {
       // we do a little instrumentation
       const start = Date.now();
-
       const query = options.getFocused();
 
       const fuzzySearch = search(query, leadMonsters, searchOpts).map(

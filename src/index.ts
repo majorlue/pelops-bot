@@ -1,4 +1,4 @@
-import {ActivityType, Client} from 'discord.js';
+import {Client, GatewayIntentBits} from 'discord.js';
 import {config} from './config';
 import {onInteraction, onReady} from './events';
 import {logger} from './handlers';
@@ -7,24 +7,25 @@ import {logger} from './handlers';
 const {BOT_TOKEN} = config;
 
 // create new discord client
-const client = new Client({intents: []});
+const client = new Client({intents: [GatewayIntentBits.Guilds]});
 
 const start = async () => {
   // run startup scripts
   client.on('ready', async () => await onReady(client));
 
-  // log server join and update discord presence
+  // log server join
   client.on('guildCreate', async guild => {
-    // retrieve new server count
-    const serverCount = (await client.guilds.fetch()).size;
-    logger.info(`Client joined guild #${serverCount}: ${guild.name}`);
+    // first check if server is experiencing an outtage
+    if (guild.available) {
+      // retrieve new server count
+      const serverCount = (await client.guilds.fetch()).size;
+      logger.info(`Client joined guild #${serverCount}: ${guild.name}`);
+    }
+  });
 
-    if (client.user)
-      client.user.setPresence({
-        activities: [
-          {type: ActivityType.Listening, name: `${serverCount} servers`},
-        ],
-      });
+  // log server kick
+  client.on('guildDelete', guild => {
+    if (guild.available) logger.info(`Client removed from: ${guild.name}`);
   });
 
   // handle user interactions (eg. commands)
@@ -33,7 +34,6 @@ const start = async () => {
     async interaction => await onInteraction(interaction)
   );
 
-  // client.user?.setPresence({activities: [{name: `Hello!`}]});
   await client.login(BOT_TOKEN);
 };
 

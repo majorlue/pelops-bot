@@ -3,12 +3,14 @@ import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import {config} from '../config';
 import {Command} from '../interfaces/command';
 
+const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
+
 const command: Command = {
   data: new SlashCommandBuilder()
     .setName('floors')
     .setDescription('List current Tower floor counts.'),
   run: async interaction => {
-    // defer reply, so Discord gets the required response within 3 seconds
+    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
     await interaction.deferReply({ephemeral: true});
 
     // get time when command was sent, and get UTC time values
@@ -78,15 +80,10 @@ const command: Command = {
         name: `${weekdays[day]} ${hour < 10 ? `0${hour}` : hour}${minutes} UTC`,
         value: floorEmbed,
       })
-      .setFooter({
-        // the small text at the bottom
-        text: config.BOT_FOOTER_MESSAGE,
-      })
-      // cute
-      .setColor(config.BOT_EMBED_COLOUR as ColorResolvable)
+      .setFooter({text: FOOTER_MESSAGE})
+      .setColor(EMBED_COLOUR as ColorResolvable)
       .setTimestamp();
 
-    // now that processing is done, edit original message with the populated embed
     await interaction.editReply({embeds: [responseEmbed]});
   },
 };

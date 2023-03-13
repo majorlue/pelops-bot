@@ -2,8 +2,10 @@ import {SlashCommandBuilder} from '@discordjs/builders';
 import axios from 'axios';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import {config} from '../config';
-import {Monster, prisma} from '../handlers';
-import {Command} from '../interfaces/command';
+import {prisma} from '../handlers';
+import {Command} from '../interfaces';
+
+const {FOOTER_MESSAGE, EMBED_COLOUR, IMAGE_PATH, CODEX_PREFIX} = config;
 
 const command: Command = {
   data: new SlashCommandBuilder()
@@ -17,7 +19,7 @@ const command: Command = {
         .setAutocomplete(true)
     ),
   run: async interaction => {
-    // defer reply, so Discord gets the required response within 3 seconds
+    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
     await interaction.deferReply({ephemeral: true});
 
     const userQuery = interaction.options.get('monster')?.value;
@@ -34,12 +36,8 @@ const command: Command = {
         // not actually author, just the top-most header text
         name: `Monster Encounter`,
       })
-      .setFooter({
-        // the small text at the bottom
-        text: config.BOT_FOOTER_MESSAGE,
-      })
-      // cute
-      .setColor(config.BOT_EMBED_COLOUR as ColorResolvable)
+      .setFooter({text: FOOTER_MESSAGE})
+      .setColor(EMBED_COLOUR as ColorResolvable)
       .setTimestamp();
 
     // promise of enemies formatted for display
@@ -67,11 +65,9 @@ const command: Command = {
                 const data = response.data[0];
                 // if curr monster is the leader, set its image as the embed thumbnail
                 if (monster === encounter.leader)
-                  responseEmbed.setThumbnail(
-                    config.ORNAGUIDE_IMAGE_PREFIX + data['image_name']
-                  );
+                  responseEmbed.setThumbnail(IMAGE_PATH + data['image_name']);
 
-                const codexURL = config.CODEX_PREFIX + data['codex_uri'];
+                const codexURL = CODEX_PREFIX + data['codex_uri'];
                 const monsterEmbed =
                   // bold monster name and, using markdown, insert hyperlink to its codex entry
                   `**[${monster}](${codexURL})**` +
@@ -89,7 +85,7 @@ const command: Command = {
       name: 'Enemies',
       value: (await Promise.all(enemies)).join('\n\n'),
     });
-    // now that processing is done, edit original message with the populated embed
+
     await interaction.editReply({embeds: [responseEmbed]});
   },
 };
