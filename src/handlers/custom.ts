@@ -81,7 +81,6 @@ export async function checkPerms(userId: string) {
     admin: [...owners, ...admins].includes(userId),
     contrib: [...owners, ...admins, ...contribs].includes(userId),
   };
-  console.log(permsObj);
   return permsObj;
 }
 
