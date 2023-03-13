@@ -87,11 +87,10 @@ const command: Command = {
 
     if (approveId) {
       // retrieve db entry for submission
-      const submission = await prisma.floorSubmission.findUnique({
+      const submission = await prisma.floorSubmission.findUniqueOrThrow({
         where: {id: approveId},
       });
       // TODO: proper response for no submission found
-      if (!submission) return;
 
       const {chest, floor, guardian, puzzle, stray, theme, week} = submission;
 
@@ -174,11 +173,10 @@ const command: Command = {
       return;
     } else if (denyId) {
       // retrieve db entry for submission
-      const submission = await prisma.floorSubmission.findUnique({
-        where: {id: approveId},
+      const submission = await prisma.floorSubmission.findUniqueOrThrow({
+        where: {id: denyId},
       });
       // TODO: proper response for no submission found
-      if (!submission) return;
 
       const {chest, floor, guardian, puzzle, stray, theme} = submission;
 
