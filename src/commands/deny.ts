@@ -1,7 +1,7 @@
 import {SlashCommandBuilder} from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import {botConfig, config, towerConfig} from '../config';
-import {prisma} from '../handlers';
+import {logger, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
@@ -45,7 +45,7 @@ const command: Command = {
     }
 
     const id = interaction.options.get('id')?.value as string;
-    const {chest, floor, guardian, puzzle, stray, theme, user, week} =
+    const {chest, floor, guardian, puzzle, stray, theme, week} =
       await prisma.floorSubmission.findUniqueOrThrow({where: {id}});
 
     // remove submission entry now that it's denied
@@ -73,6 +73,14 @@ const command: Command = {
       .setFooter({text: FOOTER_MESSAGE})
       .setColor(EMBED_COLOUR as ColorResolvable)
       .setTimestamp();
+
+    // logging human-readable command information
+    const {tag: user} = interaction.user;
+    logger.info(`${user} denied submission for ${theme} F${floor}`, {
+      command: command.data.name,
+      type: 'info',
+      user: user,
+    });
 
     await interaction.editReply({embeds: [responseEmbed]});
   },

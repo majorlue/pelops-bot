@@ -33,6 +33,7 @@ const onInteraction = async (interaction: Interaction) => {
         time,
         command,
         type: 'autocomplete',
+        user: interaction.user.tag,
       });
       return;
     }
@@ -51,6 +52,7 @@ const onInteraction = async (interaction: Interaction) => {
       time,
       command,
       type: 'command',
+      user: interaction.user.tag,
     });
     return;
   }

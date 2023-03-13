@@ -6,7 +6,7 @@ import {
 import axios from 'axios';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import {config, towerConfig} from '../config';
-import {approveSubmission, currentWeek, prisma} from '../handlers';
+import {approveSubmission, currentWeek, logger, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR, IMAGE_PATH} = config;
@@ -142,19 +142,20 @@ const command: Command = {
     const isContributor =
       contributors.filter(x => x.id === interaction.user.id).length > 0;
 
+    const responseEmbed = [];
     // if they're an approved contributor, then skip the submission process and return the update embed
     if (isContributor) {
-      const approvedEmbed = await approveSubmission(submission);
-      approvedEmbed.setAuthor({
+      const embed = await approveSubmission(submission);
+      embed.setAuthor({
         name: `Tower Floor Submission`,
         iconURL: interaction.user.avatarURL() || '',
       });
 
-      await interaction.editReply({embeds: [approvedEmbed]});
+      responseEmbed.push(embed);
     }
     // if they're a regular user, then go through full submission process
     else {
-      const responseEmbed = new EmbedBuilder()
+      const embed = new EmbedBuilder()
         .setAuthor({
           name: `Tower Floor Submission`,
           iconURL: interaction.user.avatarURL() || '',
@@ -172,11 +173,26 @@ const command: Command = {
           })
         ).data[0];
 
-        responseEmbed.setThumbnail(IMAGE_PATH + image_name);
+        embed.setThumbnail(IMAGE_PATH + image_name);
       }
 
-      await interaction.editReply({embeds: [responseEmbed]});
+      responseEmbed.push(embed);
     }
+
+    // logging human-readable command information
+    const {tag: user} = interaction.user;
+    logger.info(
+      (isContributor ? '(Contributor) ' : '') +
+        `${user} added submission for ${theme} F${floor}`,
+      {
+        command: command.data.name,
+        type: 'info',
+        user: user,
+        submission: embedFields,
+      }
+    );
+
+    await interaction.editReply({embeds: responseEmbed});
   },
 };
 
