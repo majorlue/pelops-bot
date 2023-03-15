@@ -34,9 +34,9 @@ const adminCmds = ['contributor'];
 const contribCmds = ['set', 'submissions'];
 
 // cycle through non-admin commands as status
-const presenceCmds = Object.keys(commandHash).filter(
-  x => ![...ownerCmds, ...adminCmds].includes(x)
-);
+const presenceCmds = Object.keys(commandHash)
+  .filter(x => ![...ownerCmds, ...adminCmds].includes(x))
+  .map(x => `/${x}`);
 
 export {
   commandList,

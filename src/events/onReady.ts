@@ -49,14 +49,22 @@ const onReady = async (client: Client) => {
     time,
   });
 
-  // periodically rotate bot status message with user commands
-  const commands = presenceCmds.map(x => '/' + x); // prepend slash to each command name
   setInterval(() => {
-    const index = Math.floor(Math.random() * commands.length);
-    if (client.user)
-      client.user.setActivity(commands[index], {type: ActivityType.Listening});
+    if (client.user) {
+      if (client.user.presence.activities[0]) {
+        const prev = client.user.presence.activities[0].name;
+        client.user.setActivity(presenceCmds.shift() as string, {
+          type: ActivityType.Listening,
+        });
+        presenceCmds.push(prev);
+      } else
+        client.user.setActivity(presenceCmds.shift() as string, {
+          type: ActivityType.Listening,
+        });
+    }
   }, PRESENCE_TIMER);
-  logger.info(`Set presence to rotate between: ${commands.join(', ')}`, {
+
+  logger.info(`Set presence to rotate between: ${presenceCmds.join(', ')}`, {
     type: 'startup',
   });
 };

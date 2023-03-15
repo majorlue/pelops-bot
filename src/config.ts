@@ -9,7 +9,7 @@ const envVars: Record<string, string | number | undefined> = {
   FOOTER_MESSAGE: process.env.FOOTER_MESSAGE || 'made by Major#1005',
   IMAGE_PATH: 'https://orna.guide/static/orna/img/',
   CODEX_PREFIX: 'https://playorna.com',
-  PRESENCE_TIMER: process.env.PRESENCE_TIMER || 10,
+  PRESENCE_TIMER: process.env.PRESENCE_TIMER || 5,
 };
 
 const config: Record<string, string> = {};
