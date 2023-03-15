@@ -40,7 +40,7 @@ const puzzleOpts = [...Array(maxPuzzles).keys()].map(
 
 const commandOpts = new SlashCommandBuilder()
   .setName('submit')
-  .setDescription('Set Tower floor information')
+  .setDescription('Submit complete Tower floor information')
 
   .addStringOption(option =>
     option
