@@ -258,7 +258,7 @@ const command: Command = {
           chests: chests,
         },
       });
-      //  mark all identical submissions as approved
+      // mark all identical, unresolved submissions as approved
       await prisma.floorSubmission.updateMany({
         where: {
           tower: {theme, week},
@@ -267,13 +267,24 @@ const command: Command = {
           puzzles: {hasEvery: submission.puzzles},
           chests: {equals: submission.chests},
           user: {not: user},
+          resolved: {not: false},
         },
         data: {
           approved: true,
           resolved: true,
         },
       });
-
+      // mark remaining unresolved sumissions as denied
+      await prisma.floorSubmission.updateMany({
+        where: {
+          tower: {theme, week},
+          resolved: {not: false},
+        },
+        data: {
+          approved: false,
+          resolved: true,
+        },
+      });
       // response message if they're a contributor
       await interaction.editReply({
         embeds: [
@@ -333,7 +344,7 @@ const command: Command = {
             chests: chests,
           },
         });
-
+        // mark all existing identical submissions as approved
         await prisma.floorSubmission.updateMany({
           where: {
             tower: {theme, week},
@@ -341,13 +352,24 @@ const command: Command = {
             strays: {hasEvery: submission.strays},
             puzzles: {hasEvery: submission.puzzles},
             chests: {equals: submission.chests},
+            resolved: {not: false},
           },
           data: {
             approved: true,
             resolved: true,
           },
         });
-
+        // mark remaining unresolved sumissions as denied
+        await prisma.floorSubmission.updateMany({
+          where: {
+            tower: {theme, week},
+            resolved: {not: false},
+          },
+          data: {
+            approved: false,
+            resolved: true,
+          },
+        });
         // log the autoupdate
         logger.info(
           `Submission threshold met, auto-updated: ${week} ${theme} F${floor}`,
