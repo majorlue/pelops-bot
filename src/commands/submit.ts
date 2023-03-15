@@ -1,138 +1,184 @@
-import {
-  SlashCommandBuilder,
-  SlashCommandIntegerOption,
-  SlashCommandStringOption,
-} from '@discordjs/builders';
-import axios from 'axios';
+import {SlashCommandBuilder} from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
 import {config, towerConfig} from '../config';
 import {
-  approveSubmission,
+  checkPerms,
   currentWeek,
   leadMonsters,
   logger,
   monsterNotFoundEmbed,
+  numberToWords,
   prisma,
 } from '../handlers';
 import {Command} from '../interfaces';
 
-const {FOOTER_MESSAGE, EMBED_COLOUR, IMAGE_PATH} = config;
-const {maxChests, maxHeight, minChests, minHeight, puzzles, themes} =
-  towerConfig;
-const puzzleOpts = Object.keys(puzzles).map(x => ({name: x, value: x}));
+const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
+const SUBMIT_THRESHOLD = Number(config.SUBMIT_THRESHOLD);
+
+const {
+  maxGuardians,
+  maxStrays,
+  maxPuzzles,
+  maxChests,
+  maxHeight,
+  minHeight,
+  puzzles,
+  themes,
+  towerSprites,
+} = towerConfig;
+const puzzleTypes = Object.keys(puzzles).map(x => ({name: x, value: x}));
 const themeOpts = themes.map(x => ({name: x, value: x}));
+const guardianOpts = [...Array(maxGuardians).keys()].map(
+  i => `guardian_${numberToWords(i + 1).replace(' ', '_')}`
+);
+const strayOpts = [...Array(maxStrays).keys()].map(
+  i => `stray_${numberToWords(i + 1).replace(' ', '_')}`
+);
+const puzzleOpts = [...Array(maxPuzzles).keys()].map(
+  i => `puzzle_${numberToWords(i + 1).replace(' ', '_')}`
+);
 
-const themeOptions = new SlashCommandStringOption()
-  .setName('theme')
-  .setDescription('Tower Theme to submit')
-  .setRequired(true)
-  .setChoices(...themeOpts);
+const commandOpts = new SlashCommandBuilder()
+  .setName('submit')
+  .setDescription('Set Tower floor information')
 
-const floorOptions = new SlashCommandIntegerOption()
-  .setName('floor')
-  .setDescription('Floor Number to submit')
-  .setRequired(true)
-  .setMinValue(minHeight)
-  .setMaxValue(maxHeight);
+  .addStringOption(option =>
+    option
+      .setName('theme')
+      .setDescription('Tower Theme to submit')
+      .setRequired(true)
+      .setChoices(...themeOpts)
+  )
+  .addIntegerOption(option =>
+    option
+      .setName('floor')
+      .setDescription('Floor Number to submit')
+      .setRequired(true)
+      .setMinValue(minHeight)
+      .setMaxValue(maxHeight)
+  )
+
+  .addIntegerOption(option =>
+    option
+      .setName('chest_count')
+      .setDescription('Total chests')
+      .setRequired(true)
+      .setMinValue(0)
+      .setMaxValue(maxChests)
+  );
+
+for (const input of guardianOpts)
+  commandOpts.addStringOption(option =>
+    option
+      .setName(input)
+      .setDescription('Guardian encounter sprite')
+      .setRequired(false)
+      .setAutocomplete(true)
+  );
+
+for (const input of strayOpts)
+  commandOpts.addStringOption(option =>
+    option
+      .setName(input)
+      .setDescription('Stray encounter sprite')
+      .setRequired(false)
+      .setAutocomplete(true)
+  );
+
+for (const input of puzzleOpts)
+  commandOpts.addStringOption(option =>
+    option
+      .setName(input)
+      .setDescription('Floor puzzle type')
+      .setRequired(false)
+      .setChoices(...puzzleTypes)
+  );
 
 const command: Command = {
-  data: new SlashCommandBuilder()
-    .setName('submit')
-    .setDescription('Submit Tower information')
-
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('guardian')
-        .setDescription('Submit Floor Guardian information')
-        .addStringOption(themeOptions)
-        .addIntegerOption(floorOptions)
-        .addStringOption(option =>
-          option
-            .setName('guardian')
-            .setDescription('Lead monster to search for')
-            .setRequired(true)
-            .setAutocomplete(true)
-        )
-    )
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('stray')
-        .setDescription('Submit Stray Monster information')
-        .addStringOption(themeOptions)
-        .addIntegerOption(floorOptions)
-        .addStringOption(option =>
-          option
-            .setName('stray')
-            .setDescription('Lead monster to search for')
-            .setRequired(true)
-            .setAutocomplete(true)
-        )
-    )
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('chest')
-        .setDescription('Submit chest count information')
-        .addStringOption(themeOptions)
-        .addIntegerOption(floorOptions)
-        .addIntegerOption(option =>
-          option
-            .setName('chest')
-            .setDescription('Number of chests on this floor')
-            .setRequired(true)
-            .setMinValue(minChests)
-            .setMaxValue(maxChests)
-        )
-    )
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('puzzle')
-        .setDescription('Submit puzzle type information')
-        .addStringOption(themeOptions)
-        .addIntegerOption(floorOptions)
-        .addStringOption(option =>
-          option
-            .setName('puzzle')
-            .setDescription('Puzzle type on this floor')
-            .setRequired(true)
-            .addChoices(...puzzleOpts)
-        )
-    ),
+  data: commandOpts,
   run: async interaction => {
     const week = currentWeek();
     const theme = interaction.options.get('theme')?.value as string;
     const floor = interaction.options.get('floor')?.value as number;
-    if (!theme || !floor) throw new Error();
-
-    const guardian = interaction.options.get('guardian')?.value as
-      | string
-      | undefined;
-    const stray = interaction.options.get('stray')?.value as string | undefined;
-    const chest = interaction.options.get('chest')?.value as number | undefined;
-    const puzzle = interaction.options.get('puzzle')?.value as
-      | string
-      | undefined;
+    const chests = interaction.options.get('chest_count')?.value as number;
 
     const embedFields: {name: string; value: string; inline?: boolean}[] = [];
 
-    embedFields.push({name: 'Tower Theme', value: theme, inline: true});
-    embedFields.push({name: `Floor`, value: floor.toString(), inline: true});
+    const guardians: string[] = [];
+    for (const input of guardianOpts) {
+      const guardian = interaction.options.get(input)?.value as
+        | string
+        | undefined;
 
-    // check whether monster input matches a provided autocomplete option
-    if (guardian)
-      if (!(await leadMonsters).includes(guardian)) {
-        await interaction.editReply(monsterNotFoundEmbed(interaction));
-        return;
-      } else embedFields.push({name: 'Floor Guardian', value: guardian});
-    if (stray)
-      if (!(await leadMonsters).includes(stray)) {
-        await interaction.editReply(monsterNotFoundEmbed(interaction));
-        return;
-      } else embedFields.push({name: 'Stray Monster', value: stray});
+      // check whether user sent input
+      if (guardian !== undefined)
+        if (!(await leadMonsters).includes(guardian)) {
+          await interaction.editReply(monsterNotFoundEmbed(interaction));
+          return;
+        } else guardians.push(guardian);
+    }
 
-    if (chest) embedFields.push({name: 'Chest Count', value: chest.toString()});
-    if (puzzle) embedFields.push({name: 'Puzzle', value: puzzle});
+    const strays: string[] = [];
+    for (const input of strayOpts) {
+      const stray = interaction.options.get(input)?.value as string | undefined;
 
-    // upsert to current tower theme
+      // check whether user sent input
+      if (stray !== undefined)
+        if (!(await leadMonsters).includes(stray)) {
+          await interaction.editReply(monsterNotFoundEmbed(interaction));
+          return;
+        } else strays.push(stray);
+    }
+    const puzzles: string[] = [];
+    for (const input of puzzleOpts) {
+      const puzzle = interaction.options.get(input)?.value as
+        | string
+        | undefined;
+
+      // check whether user sent input
+      if (puzzle !== undefined) puzzles.push(puzzle);
+    }
+    const isContributor = (await checkPerms(interaction.user.id)).contrib;
+
+    // check if current floor info is identical to submission
+    const currFloor = await prisma.floor.findFirst({
+      where: {
+        tower: {theme, week},
+        guardians: {hasEvery: guardians},
+        strays: {hasEvery: strays},
+        puzzles: {hasEvery: puzzles},
+        chests: {equals: chests},
+      },
+    });
+
+    // if it's identical, respond with duplicate and exit function
+    if (currFloor) {
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: `Tower Floor Submission`,
+              iconURL: interaction.user.avatarURL() || '',
+            })
+            .setTitle(`${theme} F${floor}: Not Submitted`)
+            .setDescription(
+              `This is identical to the current floor information, so no need to resubmit. Thanks for contributing anyways, though! <3`
+            )
+            .setFields(...embedFields)
+            .setThumbnail(
+              towerSprites[
+                (theme as 'Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis')
+              ]
+            )
+            .setFooter({text: FOOTER_MESSAGE})
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setTimestamp(),
+        ],
+      });
+      return;
+    }
+
+    // if it's not identical, then create a submission and handle accordingly
     const submission = await prisma.floorSubmission.create({
       data: {
         // create tower entry if it doesn't exist, otherwise add relation
@@ -144,54 +190,36 @@ const command: Command = {
         },
         floor,
         user: interaction.user.id,
-        guardian: guardian,
-        stray: stray,
-        chest: chest,
-        puzzle: puzzle,
+        guardians,
+        strays,
+        chests,
+        puzzles,
+        // if contributor then approve/resolve submission
+        resolved: isContributor,
+        approved: isContributor ? isContributor : undefined,
       },
     });
 
-    // pull approved contributors
-    const contributors = await prisma.contributor.findMany();
-    const isContributor =
-      contributors.filter(x => x.id === interaction.user.id).length > 0;
-
-    const responseEmbed = [];
-    // if they're an approved contributor, then skip the submission process and return the update embed
-    if (isContributor) {
-      const embed = await approveSubmission(submission);
-      embed.setAuthor({
-        name: `Tower Floor Submission`,
-        iconURL: interaction.user.avatarURL() || '',
+    if (submission.guardians.length > 0)
+      embedFields.push({
+        name: '**Guardians**',
+        value: submission.guardians.join(', '),
       });
-
-      responseEmbed.push(embed);
-    }
-    // if they're a regular user, then go through full submission process
-    else {
-      const embed = new EmbedBuilder()
-        .setAuthor({
-          name: `Tower Floor Submission`,
-          iconURL: interaction.user.avatarURL() || '',
-        })
-        .setTitle(`Pending review`)
-        .addFields(...embedFields)
-        .setFooter({text: FOOTER_MESSAGE})
-        .setColor(EMBED_COLOUR as ColorResolvable)
-        .setTimestamp();
-
-      if (guardian || stray) {
-        const {image_name} = (
-          await axios.post('https://ornapi.cadelabs.ovh/api/v0.1/monsters', {
-            name: guardian || stray,
-          })
-        ).data[0];
-
-        embed.setThumbnail(IMAGE_PATH + image_name);
-      }
-
-      responseEmbed.push(embed);
-    }
+    if (submission.strays.length > 0)
+      embedFields.push({
+        name: '**Strays**',
+        value: submission.strays.join(', '),
+      });
+    if (submission.puzzles.length > 0)
+      embedFields.push({
+        name: '**Puzzles**',
+        value: submission.puzzles.join(', '),
+      });
+    if (submission.chests !== null)
+      embedFields.push({
+        name: '**Chests**',
+        value: submission.chests.toString(),
+      });
 
     // logging human-readable command information
     const {tag: user} = interaction.user;
@@ -206,7 +234,178 @@ const command: Command = {
       }
     );
 
-    await interaction.editReply({embeds: responseEmbed});
+    if (isContributor) {
+      // if contributor, then update that floor
+      await prisma.floor.upsert({
+        where: {theme_week_floor: {theme, week, floor}},
+        update: {
+          guardians: {set: guardians},
+          strays: {set: strays},
+          puzzles: {set: puzzles},
+          chests: chests,
+        },
+        create: {
+          tower: {
+            connectOrCreate: {
+              create: {theme, week},
+              where: {theme_week: {theme, week}},
+            },
+          },
+          floor: floor,
+          guardians: guardians,
+          strays: strays,
+          puzzles: puzzles,
+          chests: chests,
+        },
+      });
+      //  mark all identical submissions as approved
+      await prisma.floorSubmission.updateMany({
+        where: {
+          tower: {theme, week},
+          guardians: {hasEvery: submission.guardians},
+          strays: {hasEvery: submission.strays},
+          puzzles: {hasEvery: submission.puzzles},
+          chests: {equals: submission.chests},
+          user: {not: user},
+        },
+        data: {
+          approved: true,
+          resolved: true,
+        },
+      });
+
+      // response message if they're a contributor
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: `Tower Floor Submission`,
+              iconURL: interaction.user.avatarURL() || '',
+            })
+            .setTitle(`${theme} F${floor}: Updated!`)
+            .setDescription(
+              `Submission approved as you are an approved contributor. Thanks for helping out <3`
+            )
+            .setFields(...embedFields)
+            .setThumbnail(
+              towerSprites[
+                (theme as 'Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis')
+              ]
+            )
+            .setFooter({text: FOOTER_MESSAGE})
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setTimestamp(),
+        ],
+      });
+    } else {
+      // if not a cotnributor, retrieve identical submissions
+      const sameSubmissions = await prisma.floorSubmission.findMany({
+        where: {
+          tower: {theme, week},
+          guardians: {hasEvery: submission.guardians},
+          strays: {hasEvery: submission.strays},
+          puzzles: {hasEvery: submission.puzzles},
+          chests: {equals: submission.chests},
+          user: {not: user},
+        },
+      });
+      // if there's enough submissions, mark them all as approved and update floor
+      if (sameSubmissions.length > SUBMIT_THRESHOLD) {
+        await prisma.floor.upsert({
+          where: {theme_week_floor: {theme, week, floor}},
+          update: {
+            guardians: {set: guardians},
+            strays: {set: strays},
+            puzzles: {set: puzzles},
+            chests: chests,
+          },
+          create: {
+            tower: {
+              connectOrCreate: {
+                create: {theme, week},
+                where: {theme_week: {theme, week}},
+              },
+            },
+            floor: floor,
+            guardians: guardians,
+            strays: strays,
+            puzzles: puzzles,
+            chests: chests,
+          },
+        });
+
+        await prisma.floorSubmission.updateMany({
+          where: {
+            tower: {theme, week},
+            guardians: {hasEvery: submission.guardians},
+            strays: {hasEvery: submission.strays},
+            puzzles: {hasEvery: submission.puzzles},
+            chests: {equals: submission.chests},
+          },
+          data: {
+            approved: true,
+            resolved: true,
+          },
+        });
+
+        // log the autoupdate
+        logger.info(
+          `Submission threshold met, auto-updated: ${week} ${theme} F${floor}`,
+          {
+            command: command.data.name,
+            type: 'info',
+          }
+        );
+
+        // response message if enough identical contributions
+        await interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setAuthor({
+                name: `Tower Floor Submission`,
+                iconURL: interaction.user.avatarURL() || '',
+              })
+              .setTitle(`${theme} F${floor}: Updated!`)
+              .setDescription(
+                `Submission approved as there are ${SUBMIT_THRESHOLD} identical submissions. Thanks for contributing <3`
+              )
+              .setFields(...embedFields)
+              .setThumbnail(
+                towerSprites[
+                  (theme as 'Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis')
+                ]
+              )
+              .setFooter({text: FOOTER_MESSAGE})
+              .setColor(EMBED_COLOUR as ColorResolvable)
+              .setTimestamp(),
+          ],
+        });
+      } else {
+        // response message if they're not a contributor, notify of threshold
+        await interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setAuthor({
+                name: `Tower Floor Submission`,
+                iconURL: interaction.user.avatarURL() || '',
+              })
+              .setTitle(`${theme} F${floor}: Pending Approval`)
+              .setDescription(
+                `If ${SUBMIT_THRESHOLD} identical submissions are recieved, they will all be automatically approved. Thanks for contributing <3`
+              )
+              .setFields(...embedFields)
+              .setThumbnail(
+                towerSprites[
+                  (theme as 'Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis')
+                ]
+              )
+              .setFooter({text: FOOTER_MESSAGE})
+              .setColor(EMBED_COLOUR as ColorResolvable)
+              .setTimestamp(),
+          ],
+        });
+      }
+    }
   },
 };
 

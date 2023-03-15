@@ -85,6 +85,8 @@ const command: Command = {
       | string
       | undefined;
 
+    const embedFields: {name: string; value: string; inline?: boolean}[] = [];
+
     if (approveId) {
       // retrieve db entry for submission
       const submission = await prisma.floorSubmission.findUniqueOrThrow({
@@ -92,32 +94,21 @@ const command: Command = {
       });
       // TODO: proper response for no submission found
 
-      const {chest, floor, guardian, puzzle, stray, theme, week} = submission;
+      const {floor, theme, week, guardians, strays, puzzles, chests} =
+        submission;
 
-      // upsert to current tower theme
-      // insert db entry for approved tower floors
+      // update tower floor if it exists, otherwise create one
       await prisma.floor.upsert({
         where: {
           theme_week_floor: {theme, week, floor},
         },
-        // if floor entry doesn't exist for the week, create it
-        create: {
-          // create tower entry if it doesn't exist, otherwise add relation
-          tower: {
-            connectOrCreate: {
-              create: {theme, week},
-              where: {theme_week: {theme, week}},
-            },
-          },
-          floor: floor,
-          guardians: guardian ? [guardian] : undefined,
-          strays: stray ? [stray] : undefined,
-          puzzles: puzzle ? [puzzle] : undefined,
-          chests: chest !== null ? chest : undefined,
-        },
-        // if floor entry exists, update it
         update: {
-          // create tower entry if it doesn't exist, otherwise add relation
+          guardians: {set: guardians},
+          strays: {set: strays},
+          puzzles: {set: puzzles},
+          chests: chests,
+        },
+        create: {
           tower: {
             connectOrCreate: {
               create: {theme, week},
@@ -125,10 +116,10 @@ const command: Command = {
             },
           },
           floor: floor,
-          guardians: {push: guardian ? guardian : []},
-          strays: {push: stray ? stray : []},
-          puzzles: {push: puzzle ? puzzle : []},
-          chests: chest,
+          guardians: guardians,
+          strays: strays,
+          puzzles: puzzles,
+          chests: chests,
         },
       });
 
@@ -138,12 +129,26 @@ const command: Command = {
         data: {approved: true, resolved: true},
       });
 
-      const embedFields: {name: string; value: string; inline?: boolean}[] = [];
-      if (guardian) embedFields.push({name: 'Floor Guardian', value: guardian});
-      if (stray) embedFields.push({name: 'Stray Monster', value: stray});
-      if (chest)
-        embedFields.push({name: 'Chest Count', value: chest.toString()});
-      if (puzzle) embedFields.push({name: 'Puzzle', value: puzzle});
+      if (submission.guardians.length > 0)
+        embedFields.push({
+          name: '**Guardians**',
+          value: submission.guardians.join(', '),
+        });
+      if (submission.strays.length > 0)
+        embedFields.push({
+          name: '**Strays**',
+          value: submission.strays.join(', '),
+        });
+      if (submission.puzzles.length > 0)
+        embedFields.push({
+          name: '**Puzzles**',
+          value: submission.puzzles.join(', '),
+        });
+      if (submission.chests !== null)
+        embedFields.push({
+          name: '**Chests**',
+          value: submission.chests.toString(),
+        });
 
       const responseEmbed = new EmbedBuilder()
         .setAuthor({
@@ -178,7 +183,7 @@ const command: Command = {
       });
       // TODO: proper response for no submission found
 
-      const {chest, floor, guardian, puzzle, stray, theme} = submission;
+      const {floor, theme, guardians, strays, puzzles, chests} = submission;
 
       // mark submission entry as resolved + denied
       await prisma.floorSubmission.update({
@@ -187,12 +192,26 @@ const command: Command = {
       });
 
       // populate embed fields as exists in db
-      const embedFields: {name: string; value: string; inline?: boolean}[] = [];
-      if (guardian) embedFields.push({name: 'Floor Guardian', value: guardian});
-      if (stray) embedFields.push({name: 'Stray Monster', value: stray});
-      if (chest)
-        embedFields.push({name: 'Chest Count', value: chest.toString()});
-      if (puzzle) embedFields.push({name: 'Puzzle', value: puzzle});
+      if (guardians.length > 0)
+        embedFields.push({
+          name: '**Guardians**',
+          value: guardians.join(', '),
+        });
+      if (strays.length > 0)
+        embedFields.push({
+          name: '**Strays**',
+          value: strays.join(', '),
+        });
+      if (puzzles.length > 0)
+        embedFields.push({
+          name: '**Puzzles**',
+          value: puzzles.join(', '),
+        });
+      if (chests !== null)
+        embedFields.push({
+          name: '**Chests**',
+          value: chests.toString(),
+        });
 
       const responseEmbed = new EmbedBuilder()
         .setAuthor({
@@ -229,7 +248,7 @@ const command: Command = {
       let desc = '';
       const themeFloors: Record<string, number[]> = {};
       for (const submission of submissions) {
-        const {id, user, theme, floor, chest, guardian, puzzle, stray} =
+        const {id, user, theme, floor, chests, guardians, puzzles, strays} =
           submission;
 
         const userObj = (await (
@@ -239,10 +258,12 @@ const command: Command = {
         if (!themeFloors[theme]) themeFloors[theme] = [];
         themeFloors[theme].push(floor);
         desc += `**${theme}** **F${floor}**\n`;
-        if (guardian) desc += '`Floor Guardian`: ' + guardian + '\n';
-        if (stray) desc += '`Stray Monster`: ' + stray + '\n';
-        if (puzzle) desc += '`Tower Puzzle`: ' + puzzle + '\n';
-        if (chest) desc += '`Chest Count`: ' + chest + '\n';
+        if (guardians.length > 0)
+          desc += '`Guardians`: ' + guardians.join(', ') + '\n';
+        if (strays.length > 0) desc += '`Strays`: ' + strays.join(', ') + '\n';
+        if (puzzles.length > 0)
+          desc += '`Puzzles`: ' + puzzles.join(', ') + '\n';
+        if (chests !== null) desc += '`Chests`: ' + chests + '\n';
 
         desc += `\`Submitted by\`: ${userObj.tag}` + '\n';
         desc += `\`Submission ID\`: ${id}\n\n`;

@@ -5,7 +5,6 @@ import contributor from './contributor';
 import encounter from './encounter';
 import floors from './floors';
 import keys from './keys';
-import set from './set';
 import submissions from './submissions';
 import submit from './submit';
 import tower from './tower';
@@ -16,7 +15,6 @@ const commandList: Command[] = [
   encounter,
   floors,
   keys,
-  set,
   submissions,
   submit,
   tower,
@@ -31,7 +29,7 @@ for (const command of commandList) commandHash[command.data.name] = command.run;
 // elevated commands -- not for base users
 const ownerCmds = ['admin'];
 const adminCmds = ['contributor'];
-const contribCmds = ['set', 'submissions'];
+const contribCmds = ['submissions'];
 
 // cycle through non-admin commands as status
 const presenceCmds = Object.keys(commandHash)

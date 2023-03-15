@@ -39,19 +39,19 @@ model Floor {
 }
 
 model FloorSubmission {
-  id       String   @id @default(uuid())
-  theme    String   @map("tower_theme")
-  week     String   @map("tower_week")
-  floor    Int      @map("tower_floor") // Floor number 1-50
-  guardian String? // Primary fight sprite submission
-  stray    String? // Primary fight sprite submission
-  puzzle   String? // Puzzle submission
-  chest    Int? // Chest count
+  id        String   @id @default(uuid())
+  theme     String   @map("tower_theme")
+  week      String   @map("tower_week")
+  floor     Int      @map("tower_floor") // Floor number 1-50
+  guardians String[] // Array of primary fight sprite
+  strays    String[] // Array of primary fight sprite
+  puzzles   String[] // Array of puzzle type, difficulty
+  chests    Int? // Chest count
   // Relation to Theme/Week
-  tower    Tower    @relation(fields: [theme, week], references: [theme, week])
-  user     String
-  resolved Boolean  @default(false)
-  approved Boolean?
+  tower     Tower    @relation(fields: [theme, week], references: [theme, week])
+  user      String
+  resolved  Boolean  @default(false)
+  approved  Boolean?
 
   @@map("floor_submissions")
 }
