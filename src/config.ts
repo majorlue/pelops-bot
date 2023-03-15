@@ -37,7 +37,7 @@ const towerConfig = {
   maxHeight: 49,
   maxChests: 5,
   maxGuardians: 4,
-  maxStrays: 3,
+  maxStrays: 5,
   maxPuzzles: 3,
   puzzles: {
     lights: [1, 2, 3],
