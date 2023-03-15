@@ -1,6 +1,12 @@
 import {Interaction} from 'discord.js';
 import {go as search} from 'fuzzysort';
-import {adminCmds, commandHash, contribCmds, ownerCmds} from '../commands';
+import {
+  adminCmds,
+  commandHash,
+  contribCmds,
+  monsterAutoCmds,
+  ownerCmds,
+} from '../commands';
 import {
   adminCommandEmbed,
   checkPerms,
@@ -21,28 +27,15 @@ const searchOpts = {
 // define function for handling user interactions with the bot
 const onInteraction = async (interaction: Interaction) => {
   if (interaction.isAutocomplete()) {
-    const {commandName: command, options} = interaction;
-
-    if (command === 'encounter' || 'submit') {
-      // we do a little instrumentation
-      const start = Date.now();
-      const query = options.getFocused();
-
-      const fuzzySearch = search(query, await leadMonsters, searchOpts).map(
-        result => result.target
-      );
+    // only provide monster automcomplete for monster fields
+    if (monsterAutoCmds.includes(interaction.commandName)) {
       await interaction.respond(
-        fuzzySearch.map(choice => ({name: choice, value: choice}))
+        search(interaction.options.getFocused(), await leadMonsters, searchOpts)
+          .map(result => result.target)
+          .map(choice => ({name: choice, value: choice}))
       );
-      const time = `${Date.now() - start}ms`;
-      logger.info(`Autocomplete for /${command} completed in ${time}`, {
-        time,
-        command,
-        type: 'autocomplete',
-        user: interaction.user.tag,
-      });
-      return;
     }
+    // other automcomplete fields go here
   }
 
   // verify intertaction type here and run the approriate function

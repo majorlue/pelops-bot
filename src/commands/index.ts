@@ -38,6 +38,9 @@ const presenceCmds = Object.keys(commandHash)
   .filter(x => ![...ownerCmds, ...adminCmds].includes(x))
   .map(x => `/${x}`);
 
+// commands to offer monster autocomplete suggestions for
+const monsterAutoCmds = ['encounter', 'set', 'submit'];
+
 export {
   commandList,
   commandHash,
@@ -45,4 +48,5 @@ export {
   adminCmds,
   contribCmds,
   presenceCmds,
+  monsterAutoCmds,
 };
