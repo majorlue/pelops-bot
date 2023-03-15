@@ -48,7 +48,7 @@ const command: Command = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('guardian')
-        .setDescription('Set Floor Guardian information')
+        .setDescription('Set floor guardians')
         .addStringOption(themeOptions)
         .addIntegerOption(floorOptions)
 
@@ -84,7 +84,7 @@ const command: Command = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('stray')
-        .setDescription('Submit Stray Monster information')
+        .setDescription('Set floor strays')
         .addStringOption(themeOptions)
         .addIntegerOption(floorOptions)
         .addStringOption(option =>
@@ -120,7 +120,7 @@ const command: Command = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('puzzle')
-        .setDescription('Submit puzzle type information')
+        .setDescription('Set floor puzzles')
         .addStringOption(themeOptions)
         .addIntegerOption(floorOptions)
         .addStringOption(option =>
@@ -149,7 +149,7 @@ const command: Command = {
     .addSubcommand(subcommand =>
       subcommand
         .setName('chest')
-        .setDescription('Submit chest count information')
+        .setDescription('Set floor chest count')
         .addStringOption(themeOptions)
         .addIntegerOption(floorOptions)
         .addIntegerOption(option =>
