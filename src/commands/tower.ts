@@ -4,6 +4,7 @@ import {
   SlashCommandStringOption,
 } from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
+import client from '..';
 import {config, towerConfig} from '../config';
 import {currentWeek, prisma} from '../handlers';
 import {Command} from '../interfaces';
@@ -43,70 +44,64 @@ const command: Command = {
     const floor = interaction.options.get('floor')?.value as number | undefined;
 
     const floors = await prisma.floor.findMany({where: {week, theme, floor}});
+    floors.sort((a, b) => a.floor - b.floor);
 
-    const floorFields = [];
+    const floorText: {startFloor: number; endFloor: number; text: string}[] =
+      [];
+    let embedNum = 0;
+
+    const chestEmoji = client.emojis.cache.find(
+      emoji => emoji.name === 'tower_chest'
+    );
+
     for (const floor of floors) {
       const {floor: floorNum, guardians, strays, puzzles, chests} = floor;
-      const field = {name: '', value: '', inline: false, floor: floor.floor};
-      field.name = `Floor ${floorNum}`;
+      if (!floorText[embedNum]) {
+        floorText[embedNum] = {
+          startFloor: floorNum,
+          text: '',
+          endFloor: floorNum,
+        };
+      }
 
+      let text =
+        `**Floor ${floorNum}**` +
+        (chests ? ` (${chests}x ${chestEmoji})` : '') +
+        '\n';
       if (guardians.length > 0)
-        field.value = '**Guardians**: ' + guardians.join(', ') + '\n';
-      if (strays.length > 0)
-        field.value += '**Strays**: ' + strays.join(', ') + '\n';
-      if (puzzles.length > 0)
-        field.value += '**Puzzles**: ' + puzzles.join(', ') + '\n';
-      if (chests !== null)
-        field.value += '**Chests**: ' + chests.toString() + '\n';
+        text += '`Guardians`: ' + guardians.join(', ') + '\n';
+      if (strays.length > 0) text += '`Strays`: ' + strays.join(', ') + '\n';
+      if (puzzles.length > 0) text += '`Puzzles`: ' + puzzles.join(', ') + '\n';
 
-      floorFields.push(field);
+      // if the length is going to exceed discord's limit, create another embed
+      if (floorText[embedNum].text.length + text.length > 4096) {
+        floorText[embedNum].endFloor = floorNum;
+        embedNum++;
+      }
+
+      floorText[embedNum].text += text + '\n';
     }
-    // sort by floor number
-    floorFields.sort((a, b) => a.floor - b.floor);
+    if (floorText.length === 1)
+      floorText[0].endFloor = floors[floors.length - 1].floor;
 
     const responseEmbeds = [];
+    for (const embedText of floorText)
+      responseEmbeds.push(
+        new EmbedBuilder()
+          .setAuthor({
+            name: `Week of ${week}`,
+          })
+          .setTitle(
+            `${theme} Floors ${embedText.startFloor} - ${embedText.endFloor}`
+          )
+          .setDescription(embedText.text)
+          .setThumbnail(towerSprites[theme])
+          .setColor(EMBED_COLOUR as ColorResolvable)
+      );
 
-    if (floorFields.length < 25) {
-      // build embed for the command
-      responseEmbeds.push(
-        new EmbedBuilder()
-          .setAuthor({
-            name: `Week of ${week}`,
-          })
-          .setTitle(`${theme} Floors`)
-          .addFields(floorFields)
-          .setThumbnail(towerSprites[theme])
-          .setFooter({text: FOOTER_MESSAGE})
-          .setColor(EMBED_COLOUR as ColorResolvable)
-          .setTimestamp()
-      );
-    } else {
-      // build embed for the command
-      responseEmbeds.push(
-        new EmbedBuilder()
-          .setAuthor({
-            name: `Week of ${week}`,
-          })
-          .setTitle(`${theme} Floors`)
-          .addFields(floorFields.filter(x => x.floor <= 20))
-          .setThumbnail(towerSprites[theme])
-          .setFooter({text: FOOTER_MESSAGE})
-          .setColor(EMBED_COLOUR as ColorResolvable)
-          .setTimestamp()
-      );
-      responseEmbeds.push(
-        new EmbedBuilder()
-          .setAuthor({
-            name: `Week of ${week}`,
-          })
-          .setTitle(`${theme} Floors`)
-          .addFields(floorFields.filter(x => x.floor > 20))
-          .setThumbnail(towerSprites[theme])
-          .setFooter({text: FOOTER_MESSAGE})
-          .setColor(EMBED_COLOUR as ColorResolvable)
-          .setTimestamp()
-      );
-    }
+    responseEmbeds[responseEmbeds.length - 1]
+      .setFooter({text: FOOTER_MESSAGE})
+      .setTimestamp();
 
     await interaction.editReply({embeds: responseEmbeds});
   },
