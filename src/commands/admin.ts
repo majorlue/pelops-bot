@@ -111,12 +111,12 @@ const command: Command = {
     } else {
       // display with newest admin first
       const adminIds = (await prisma.admin.findMany()).sort(
-        (a, b) => a.createdOn.valueOf() - b.createdOn.valueOf()
+        (a, b) => a.createdAt.valueOf() - b.createdAt.valueOf()
       );
 
       const responseEmbeds = [];
       for (const admin of adminIds) {
-        const {id, createdOn} = admin;
+        const {id, createdAt} = admin;
         const userObj = (await (
           await client.users.fetch(id)
         ).toJSON()) as Record<string, unknown>;
@@ -129,7 +129,7 @@ const command: Command = {
             })
             .setFooter({text: FOOTER_MESSAGE})
             .setColor(EMBED_COLOUR as ColorResolvable)
-            .setTimestamp(createdOn)
+            .setTimestamp(createdAt)
         );
       }
       // only display 10 newest admins, as discord supports 10 embeds per msg
