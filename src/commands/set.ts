@@ -51,84 +51,84 @@ const command: Command = {
     .addStringOption(option =>
       option
         .setName('guardian_one')
-        .setDescription('Lead monster to search for')
+        .setDescription('First floor guardian')
         .setRequired(false)
         .setAutocomplete(true)
     )
     .addStringOption(option =>
       option
         .setName('guardian_two')
-        .setDescription('Lead monster to search for')
+        .setDescription('Second floor guardian')
         .setRequired(false)
         .setAutocomplete(true)
     )
     .addStringOption(option =>
       option
         .setName('guardian_three')
-        .setDescription('Lead monster to search for')
+        .setDescription('Third floor guardian')
         .setRequired(false)
         .setAutocomplete(true)
     )
     .addStringOption(option =>
       option
         .setName('guardian_four')
-        .setDescription('Lead monster to search for')
+        .setDescription('Fourth floor guardian')
         .setRequired(false)
         .setAutocomplete(true)
     )
     .addStringOption(option =>
       option
         .setName('stray_one')
-        .setDescription('Lead monster to search for')
+        .setDescription('First stray monster')
         .setRequired(false)
         .setAutocomplete(true)
     )
     .addStringOption(option =>
       option
         .setName('stray_two')
-        .setDescription('Lead monster to search for')
+        .setDescription('Second stray monster')
         .setRequired(false)
         .setAutocomplete(true)
     )
     .addStringOption(option =>
       option
         .setName('stray_three')
-        .setDescription('Lead monster to search for')
+        .setDescription('Third stray monster')
         .setRequired(false)
         .setAutocomplete(true)
     )
     .addStringOption(option =>
       option
         .setName('stray_four')
-        .setDescription('Lead monster to search for')
+        .setDescription('Fourth stray monster')
         .setRequired(false)
         .setAutocomplete(true)
     )
     .addStringOption(option =>
       option
         .setName('puzzle_one')
-        .setDescription('Puzzle type on this floor')
+        .setDescription('First puzzle')
         .setRequired(false)
         .addChoices(...puzzleOpts)
     )
     .addStringOption(option =>
       option
         .setName('puzzle_two')
-        .setDescription('Puzzle type on this floor')
+        .setDescription('Second puzzle')
         .setRequired(false)
         .addChoices(...puzzleOpts)
     )
     .addStringOption(option =>
       option
         .setName('puzzle_three')
-        .setDescription('Puzzle type on this floor')
+        .setDescription('Third puzzle')
         .setRequired(false)
         .addChoices(...puzzleOpts)
     )
     .addIntegerOption(option =>
       option
         .setName('chest_count')
-        .setDescription('Number of chests on this floor')
+        .setDescription('Total chests')
         .setRequired(false)
         .setMinValue(minChests)
         .setMaxValue(maxChests)
