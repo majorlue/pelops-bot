@@ -17,6 +17,8 @@ model Tower {
   week             String
   floors           Floor[] // Array of floors and their encounters
   floorSubmissions FloorSubmission[]
+  createdAt        DateTime          @default(now()) @map("created_at")
+  updatedAt        DateTime          @updatedAt @map("updated_at")
 
   // Defining unique constraint to be combination of theme/week
   @@id([theme, week])
@@ -33,6 +35,8 @@ model Floor {
   chests    Int? // Chest count
   // Relation to Theme/Week
   tower     Tower    @relation(fields: [theme, week], references: [theme, week])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@id([theme, week, floor])
   @@map("floors")
@@ -52,22 +56,28 @@ model FloorSubmission {
   user      String
   resolved  Boolean  @default(false)
   approved  Boolean?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("floor_submissions")
 }
 
 model Encounter {
-  leader   String   @id @unique // Monster sprite, as it shows on map
-  tier     Int // Minimum encounter tier (9, 10)
-  monsters String[] // Array of monsters in this encounter (incl. leader)
+  leader    String   @id @unique // Monster sprite, as it shows on map
+  tier      Int // Minimum encounter tier (9, 10)
+  monsters  String[] // Array of monsters in this encounter (incl. leader)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("encounters")
 }
 
 model Monster {
-  id       Int      @id @default(autoincrement())
-  name     String // Monster name
-  statuses String[] // buffs/debuffs/statuses, or berserk?
+  id        Int      @id @default(autoincrement())
+  name      String // Monster name
+  statuses  String[] // buffs/debuffs/statuses, or berserk?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("monsters")
 }
@@ -75,7 +85,8 @@ model Monster {
 // table of bot admins
 model Admin {
   id        String   @id
-  createdOn DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("admins")
 }
@@ -84,6 +95,8 @@ model Admin {
 model Contributor {
   id        String   @id
   createdOn DateTime @default(now())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("contributors")
 }
