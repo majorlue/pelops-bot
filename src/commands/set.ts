@@ -45,121 +45,93 @@ const command: Command = {
     .setName('set')
     .setDescription('Set Tower floor information')
 
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('guardian')
-        .setDescription('Set floor guardians')
-        .addStringOption(themeOptions)
-        .addIntegerOption(floorOptions)
+    .addStringOption(themeOptions)
+    .addIntegerOption(floorOptions)
 
-        .addStringOption(option =>
-          option
-            .setName('guardian_one')
-            .setDescription('Lead monster to search for')
-            .setRequired(true)
-            .setAutocomplete(true)
-        )
-        .addStringOption(option =>
-          option
-            .setName('guardian_two')
-            .setDescription('Lead monster to search for')
-            .setRequired(false)
-            .setAutocomplete(true)
-        )
-        .addStringOption(option =>
-          option
-            .setName('guardian_three')
-            .setDescription('Lead monster to search for')
-            .setRequired(false)
-            .setAutocomplete(true)
-        )
-        .addStringOption(option =>
-          option
-            .setName('guardian_four')
-            .setDescription('Lead monster to search for')
-            .setRequired(false)
-            .setAutocomplete(true)
-        )
+    .addStringOption(option =>
+      option
+        .setName('guardian_one')
+        .setDescription('Lead monster to search for')
+        .setRequired(false)
+        .setAutocomplete(true)
     )
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('stray')
-        .setDescription('Set floor strays')
-        .addStringOption(themeOptions)
-        .addIntegerOption(floorOptions)
-        .addStringOption(option =>
-          option
-            .setName('stray_one')
-            .setDescription('Lead monster to search for')
-            .setRequired(true)
-            .setAutocomplete(true)
-        )
-        .addStringOption(option =>
-          option
-            .setName('stray_two')
-            .setDescription('Lead monster to search for')
-            .setRequired(false)
-            .setAutocomplete(true)
-        )
-        .addStringOption(option =>
-          option
-            .setName('stray_three')
-            .setDescription('Lead monster to search for')
-            .setRequired(false)
-            .setAutocomplete(true)
-        )
-        .addStringOption(option =>
-          option
-            .setName('stray_four')
-            .setDescription('Lead monster to search for')
-            .setRequired(false)
-            .setAutocomplete(true)
-        )
+    .addStringOption(option =>
+      option
+        .setName('guardian_two')
+        .setDescription('Lead monster to search for')
+        .setRequired(false)
+        .setAutocomplete(true)
     )
-
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('puzzle')
-        .setDescription('Set floor puzzles')
-        .addStringOption(themeOptions)
-        .addIntegerOption(floorOptions)
-        .addStringOption(option =>
-          option
-            .setName('puzzle_one')
-            .setDescription('Puzzle type on this floor')
-            .setRequired(true)
-            .addChoices(...puzzleOpts)
-        )
-        .addStringOption(option =>
-          option
-            .setName('puzzle_two')
-            .setDescription('Puzzle type on this floor')
-            .setRequired(false)
-            .addChoices(...puzzleOpts)
-        )
-        .addStringOption(option =>
-          option
-            .setName('puzzle_three')
-            .setDescription('Puzzle type on this floor')
-            .setRequired(false)
-            .addChoices(...puzzleOpts)
-        )
+    .addStringOption(option =>
+      option
+        .setName('guardian_three')
+        .setDescription('Lead monster to search for')
+        .setRequired(false)
+        .setAutocomplete(true)
     )
-
-    .addSubcommand(subcommand =>
-      subcommand
-        .setName('chest')
-        .setDescription('Set floor chest count')
-        .addStringOption(themeOptions)
-        .addIntegerOption(floorOptions)
-        .addIntegerOption(option =>
-          option
-            .setName('chest_count')
-            .setDescription('Number of chests on this floor')
-            .setRequired(true)
-            .setMinValue(minChests)
-            .setMaxValue(maxChests)
-        )
+    .addStringOption(option =>
+      option
+        .setName('guardian_four')
+        .setDescription('Lead monster to search for')
+        .setRequired(false)
+        .setAutocomplete(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('stray_one')
+        .setDescription('Lead monster to search for')
+        .setRequired(false)
+        .setAutocomplete(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('stray_two')
+        .setDescription('Lead monster to search for')
+        .setRequired(false)
+        .setAutocomplete(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('stray_three')
+        .setDescription('Lead monster to search for')
+        .setRequired(false)
+        .setAutocomplete(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('stray_four')
+        .setDescription('Lead monster to search for')
+        .setRequired(false)
+        .setAutocomplete(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('puzzle_one')
+        .setDescription('Puzzle type on this floor')
+        .setRequired(false)
+        .addChoices(...puzzleOpts)
+    )
+    .addStringOption(option =>
+      option
+        .setName('puzzle_two')
+        .setDescription('Puzzle type on this floor')
+        .setRequired(false)
+        .addChoices(...puzzleOpts)
+    )
+    .addStringOption(option =>
+      option
+        .setName('puzzle_three')
+        .setDescription('Puzzle type on this floor')
+        .setRequired(false)
+        .addChoices(...puzzleOpts)
+    )
+    .addIntegerOption(option =>
+      option
+        .setName('chest_count')
+        .setDescription('Number of chests on this floor')
+        .setRequired(false)
+        .setMinValue(minChests)
+        .setMaxValue(maxChests)
     ),
   run: async interaction => {
     const week = currentWeek();
@@ -167,10 +139,6 @@ const command: Command = {
     const floor = interaction.options.get('floor')?.value as number;
     if (!theme || !floor) throw new Error();
 
-    const isGuardian =
-      interaction.options.get('guardian_one')?.value !== undefined;
-    const isStray = interaction.options.get('stray_one')?.value !== undefined;
-    const isPuzzle = interaction.options.get('puzzle_one')?.value !== undefined;
     const chests = interaction.options.get('chest_count')?.value as
       | number
       | undefined;
@@ -191,56 +159,50 @@ const command: Command = {
     const strays: string[] = [];
     const puzzles: string[] = [];
 
-    if (isGuardian) {
-      for (const input of [
-        'guardian_one',
-        'guardian_two',
-        'guardian_three',
-        'guardian_four',
-      ]) {
-        const guardian = interaction.options.get(input)?.value as
-          | string
-          | undefined;
+    for (const input of [
+      'guardian_one',
+      'guardian_two',
+      'guardian_three',
+      'guardian_four',
+    ]) {
+      const guardian = interaction.options.get(input)?.value as
+        | string
+        | undefined;
 
-        // check whether user sent input
-        if (guardian !== undefined)
-          if (!(await leadMonsters).includes(guardian)) {
-            await interaction.editReply(monsterNotFoundEmbed(interaction));
-            return;
-          } else guardians.push(guardian);
-      }
-    } else if (isStray) {
-      for (const input of [
-        'stray_one',
-        'stray_two',
-        'stray_three',
-        'stray_four',
-      ]) {
-        const stray = interaction.options.get(input)?.value as
-          | string
-          | undefined;
+      // check whether user sent input
+      if (guardian !== undefined)
+        if (!(await leadMonsters).includes(guardian)) {
+          await interaction.editReply(monsterNotFoundEmbed(interaction));
+          return;
+        } else guardians.push(guardian);
+    }
+    for (const input of [
+      'stray_one',
+      'stray_two',
+      'stray_three',
+      'stray_four',
+    ]) {
+      const stray = interaction.options.get(input)?.value as string | undefined;
 
-        // check whether user sent input
-        if (stray !== undefined)
-          if (!(await leadMonsters).includes(stray)) {
-            await interaction.editReply(monsterNotFoundEmbed(interaction));
-            return;
-          } else strays.push(stray);
-      }
-    } else if (isPuzzle) {
-      for (const input of [
-        'puzzle_one',
-        'puzzle_two',
-        'puzzle_three',
-        'puzzle_four',
-      ]) {
-        const puzzle = interaction.options.get(input)?.value as
-          | string
-          | undefined;
+      // check whether user sent input
+      if (stray !== undefined)
+        if (!(await leadMonsters).includes(stray)) {
+          await interaction.editReply(monsterNotFoundEmbed(interaction));
+          return;
+        } else strays.push(stray);
+    }
+    for (const input of [
+      'puzzle_one',
+      'puzzle_two',
+      'puzzle_three',
+      'puzzle_four',
+    ]) {
+      const puzzle = interaction.options.get(input)?.value as
+        | string
+        | undefined;
 
-        // check whether user sent input
-        if (puzzle !== undefined) puzzles.push(puzzle);
-      }
+      // check whether user sent input
+      if (puzzle !== undefined) puzzles.push(puzzle);
     }
 
     const towerFloor = await prisma.floor.upsert({
@@ -257,9 +219,9 @@ const command: Command = {
           },
         },
         floor: floor,
-        guardians: isGuardian ? guardians : undefined,
-        strays: isStray ? strays : undefined,
-        puzzles: isPuzzle ? puzzles : undefined,
+        guardians: guardians.length > 0 ? guardians : undefined,
+        strays: strays.length > 0 ? strays : undefined,
+        puzzles: puzzles.length > 0 ? puzzles : undefined,
         chests: chests,
       },
       // if floor entry exists, update it
@@ -272,9 +234,9 @@ const command: Command = {
           },
         },
         floor: floor,
-        guardians: isGuardian ? {set: guardians} : undefined,
-        strays: isStray ? {set: strays} : undefined,
-        puzzles: isPuzzle ? {set: puzzles} : undefined,
+        guardians: guardians.length > 0 ? {set: guardians} : undefined,
+        strays: strays.length > 0 ? {set: strays} : undefined,
+        puzzles: puzzles.length > 0 ? {set: puzzles} : undefined,
         chests: chests,
       },
     });
