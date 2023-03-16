@@ -54,15 +54,10 @@ const command: Command = {
       emoji => emoji.name === 'tower_chest'
     );
 
+    // TODO: refactor length validation. this is a mess, ty
+    let prevFloor: number = 1;
     for (const floor of floors) {
       const {floor: floorNum, guardians, strays, puzzles, chests} = floor;
-      if (!floorText[embedNum]) {
-        floorText[embedNum] = {
-          startFloor: floorNum,
-          text: '',
-          endFloor: floorNum,
-        };
-      }
 
       let text =
         `**Floor ${floorNum}**` +
@@ -74,15 +69,25 @@ const command: Command = {
       if (puzzles.length > 0) text += '`Puzzles`: ' + puzzles.join(', ') + '\n';
 
       // if the length is going to exceed discord's limit, create another embed
-      if (floorText[embedNum].text.length + text.length > 4096) {
-        floorText[embedNum].endFloor = floorNum;
+      if (
+        floorText[embedNum] &&
+        floorText[embedNum].text.length + text.length > 4096
+      ) {
+        floorText[embedNum].endFloor = prevFloor;
         embedNum++;
       }
 
+      if (!floorText[embedNum])
+        floorText.push({
+          startFloor: floorNum,
+          text: '',
+          endFloor: floorNum,
+        });
+
       floorText[embedNum].text += text + '\n';
+      floorText[embedNum].endFloor = prevFloor;
+      prevFloor = floorNum;
     }
-    if (floorText.length === 1)
-      floorText[0].endFloor = floors[floors.length - 1].floor;
 
     const responseEmbeds = [];
     for (const embedText of floorText)
