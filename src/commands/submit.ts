@@ -144,6 +144,7 @@ const command: Command = {
     const currFloor = await prisma.floor.findFirst({
       where: {
         tower: {theme, week},
+        floor,
         guardians: {hasEvery: guardians},
         strays: {hasEvery: strays},
         puzzles: {hasEvery: puzzles},
