@@ -46,15 +46,12 @@ const command: Command = {
     const floors = await prisma.floor.findMany({where: {week, theme, floor}});
     floors.sort((a, b) => a.floor - b.floor);
 
-    const floorText: {startFloor: number; endFloor: number; text: string}[] =
-      [];
-    let embedNum = 0;
-
     const chestEmoji = client.emojis.cache.find(
       emoji => emoji.name === 'tower_chest'
     );
 
-    // TODO: refactor length validation. this is a mess, ty
+    const floorText: string[] = [];
+    let embedNum = 0;
     let prevFloor: number = 1;
     for (const floor of floors) {
       const {floor: floorNum, guardians, strays, puzzles, chests} = floor;
@@ -69,23 +66,10 @@ const command: Command = {
       if (puzzles.length > 0) text += '`Puzzles`: ' + puzzles.join(', ') + '\n';
 
       // if the length is going to exceed discord's limit, create another embed
-      if (
-        floorText[embedNum] &&
-        floorText[embedNum].text.length + text.length > 4096
-      ) {
-        floorText[embedNum].endFloor = prevFloor;
-        embedNum++;
-      }
+      if (!floorText[embedNum]) floorText[embedNum] = '\u200b';
+      else if (floorText[embedNum].length + text.length > 4096) embedNum++;
 
-      if (!floorText[embedNum])
-        floorText.push({
-          startFloor: floorNum,
-          text: '',
-          endFloor: floorNum,
-        });
-
-      floorText[embedNum].text += text + '\n';
-      floorText[embedNum].endFloor = prevFloor;
+      floorText[embedNum] += text + '\n';
       prevFloor = floorNum;
     }
 
@@ -94,12 +78,9 @@ const command: Command = {
       responseEmbeds.push(
         new EmbedBuilder()
           .setAuthor({
-            name: `Week of ${week}`,
+            name: `${theme} | Week of ${week}`,
           })
-          .setTitle(
-            `${theme} Floors ${embedText.startFloor} - ${embedText.endFloor}`
-          )
-          .setDescription(embedText.text)
+          .setDescription(embedText.replace('undefined', ''))
           .setThumbnail(towerSprites[theme])
           .setColor(EMBED_COLOUR as ColorResolvable)
       );
