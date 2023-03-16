@@ -2,11 +2,14 @@ require('newrelic');
 
 // TODO: cleanup config vars
 
+import {version} from '../package.json';
+
 const envVars: Record<string, string | number | undefined> = {
   BOT_TOKEN: process.env.BOT_TOKEN,
   BOT_OWNER: process.env.BOT_OWNER || '153296359871479809',
   EMBED_COLOUR: process.env.EMBED_COLOUR || 'DarkPurple',
-  FOOTER_MESSAGE: process.env.FOOTER_MESSAGE || 'made by Major#1005',
+  FOOTER_MESSAGE:
+    process.env.FOOTER_MESSAGE || `made by Major#1005 | v${version}`,
   SUBMIT_THRESHOLD: process.env.SUBMIT_THRESHOLD || 3,
   IMAGE_PATH: 'https://orna.guide/static/orna/img/',
   CODEX_PREFIX: 'https://playorna.com',
