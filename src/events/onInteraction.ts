@@ -4,6 +4,7 @@ import {
   adminCmds,
   commandHash,
   contribCmds,
+  ephemeralCmds,
   monsterAutoCmds,
   ownerCmds,
 } from '../commands';
@@ -44,7 +45,9 @@ const onInteraction = async (interaction: Interaction) => {
     const start = Date.now();
 
     // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-    await interaction.deferReply({ephemeral: true});
+    await interaction.deferReply({
+      ephemeral: ephemeralCmds.includes(interaction.commandName),
+    });
     const {commandName: command, user} = interaction;
 
     // check if user has required permissions for elevated commands

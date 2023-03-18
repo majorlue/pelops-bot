@@ -16,6 +16,7 @@
     "build": "tsc -p tsconfig.json",
     "postbuild": "copyfiles package.json build",
     "watch": "nodemon -L ./src/index.ts",
+    "watch-worker": "nodemon -L ./src/worker.ts",
     "start": "pm2 start pm2.config.js --no-daemon"
   },
   "devDependencies": {
@@ -32,11 +33,13 @@
     "@newrelic/winston-enricher": "^4.0.1",
     "@prisma/client": "^4.11.0",
     "axios": "^1.3.4",
+    "bull": "^4.10.4",
     "copyfiles": "^2.4.1",
     "dayjs": "^1.11.7",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
     "fuzzysort": "^2.0.4",
+    "ioredis": "^5.3.1",
     "newrelic": "^8.17.0",
     "pm2": "^5.2.2",
     "winston": "^3.8.2"

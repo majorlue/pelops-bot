@@ -1,13 +1,9 @@
-import {Client, GatewayIntentBits} from 'discord.js';
 import {config} from './config';
 import {onInteraction, onReady} from './events';
-import {logger} from './handlers';
+import {client, logger} from './handlers';
 
 // extracting required config vars
 const {BOT_TOKEN} = config;
-
-// create new discord client
-const client = new Client({intents: [GatewayIntentBits.Guilds]});
 
 const start = async () => {
   // run startup scripts
@@ -43,5 +39,3 @@ const start = async () => {
 };
 
 start();
-
-export default client;

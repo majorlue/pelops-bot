@@ -82,6 +82,18 @@ model Monster {
   @@map("monsters")
 }
 
+// table for messages that require persistent handling
+model PersistentMessage {
+  id        String   @id @default(uuid())
+  messageId String   @map("message_id")
+  channelId String   @map("channel_id")
+  type      String? // type of handling this requires
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("persistent_messages")
+}
+
 // table of bot admins
 model Admin {
   id        String   @id

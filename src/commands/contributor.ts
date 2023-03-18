@@ -1,8 +1,7 @@
 import {SlashCommandBuilder} from '@discordjs/builders';
 import {ColorResolvable, EmbedBuilder} from 'discord.js';
-import client from '..';
 import {config} from '../config';
-import {dayjs, logger, prisma} from '../handlers';
+import {client, dayjs, logger, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR} = config;

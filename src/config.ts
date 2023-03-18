@@ -5,15 +5,29 @@ require('newrelic');
 import {version} from '../package.json';
 
 const envVars: Record<string, string | number | undefined> = {
+  // Bot Setup
   BOT_TOKEN: process.env.BOT_TOKEN,
   BOT_OWNER: process.env.BOT_OWNER || '153296359871479809',
+  PRESENCE_TIMER: process.env.PRESENCE_TIMER || 5,
+
+  // Bot Commands
   EMBED_COLOUR: process.env.EMBED_COLOUR || 'DarkPurple',
   FOOTER_MESSAGE:
     process.env.FOOTER_MESSAGE || `made by Major#1005 | v${version}`,
   SUBMIT_THRESHOLD: process.env.SUBMIT_THRESHOLD || 3,
   IMAGE_PATH: 'https://orna.guide/static/orna/img/',
   CODEX_PREFIX: 'https://playorna.com',
-  PRESENCE_TIMER: process.env.PRESENCE_TIMER || 5,
+
+  // Redis
+  REDIS_URL: process.env.REDIS_URL,
+
+  // Task Queue
+  MAIN_QUEUE_NAME: 'background-tasks',
+  CRON_QUEUE_NAME: 'cron-tasks',
+  QUEUE_MAX_TRIES: process.env.QUEUE_MAX_TRIES || 3,
+
+  // Project Info
+  VERSION: version,
 };
 
 const config: Record<string, string> = {};

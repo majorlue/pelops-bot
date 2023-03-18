@@ -41,6 +41,12 @@ tasks:
     cmds:
       - npm run watch
 
+  watch-worker:
+    desc: Start server instance and watch for TypeScript file changes.
+    deps: [npm-install]
+    cmds:
+      - npm run watch-worker
+
   start:
     desc: Runs server instance as active process in the current terminal.
     deps: [npm-install]

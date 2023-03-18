@@ -3,6 +3,7 @@ import {Command} from '../interfaces';
 import admin from './admin';
 import chests from './chests';
 import contributor from './contributor';
+import display from './display';
 import encounter from './encounter';
 import floors from './floors';
 import keys from './keys';
@@ -13,6 +14,7 @@ import tower from './tower';
 const commandList: Command[] = [
   admin,
   chests,
+  display,
   contributor,
   encounter,
   floors,
@@ -21,6 +23,11 @@ const commandList: Command[] = [
   submit,
   tower,
 ];
+
+const notEphemeral = ['display'];
+const ephemeralCmds = commandList
+  .map(x => x.data.name)
+  .filter(x => !notEphemeral.includes(x));
 
 const commandHash: Record<
   string,
@@ -49,4 +56,5 @@ export {
   contribCmds,
   presenceCmds,
   monsterAutoCmds,
+  ephemeralCmds,
 };
