@@ -17,16 +17,22 @@ export async function updateFloorsMessages(job: Job): Promise<void> {
   // iterate through each one, updating it if it still exists
   for (const message of persistentMessages) {
     const {messageId, channelId} = message;
-    const messageChannel = await client.channels.fetch(channelId);
+    // try/catch for retrieving message
+    try {
+      const messageChannel = await client.channels.fetch(channelId);
 
-    if (messageChannel && messageChannel.type === ChannelType.GuildText) {
-      const discordMsg = await messageChannel.messages.fetch(messageId);
-      // if the message exists, then update it with the new heights
-      if (discordMsg) await discordMsg.edit({embeds: [currentHeightsEmbed()]});
-      // if the message wasn't found remove from db so it won't update in the future
-      else await prisma.persistentMessage.delete({where: {id: message.id}});
+      if (messageChannel && messageChannel.type === ChannelType.GuildText) {
+        const discordMsg = await messageChannel.messages.fetch(messageId);
+        // if the message exists, then update it with the new heights
+        if (discordMsg)
+          await discordMsg.edit({embeds: [currentHeightsEmbed()]});
+        // if the message wasn't found remove from db so it won't update in the future
+        else await prisma.persistentMessage.delete({where: {id: message.id}});
+      }
+      // if the channel wasn't found remove from db so it won't update in the future
+      // channel could be deleted, or bot lacks perms
+    } catch (err) {
+      await prisma.persistentMessage.delete({where: {id: message.id}});
     }
-    // if the channel wasn't found remove from db so it won't update in the future
-    else await prisma.persistentMessage.delete({where: {id: message.id}});
   }
 }
