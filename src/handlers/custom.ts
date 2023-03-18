@@ -87,9 +87,7 @@ export function currentHeightsEmbed() {
     })
     .addFields({
       // second header text for current UTC display and insert heights code block
-      name: `${dayjs(date).format('dddd')} ${
-        hour < 10 ? `0${hour}` : hour
-      }${minutes} UTC`,
+      name: `${dayjs.utc(date).format('dddd HHmm')} UTC`,
       value: floorEmbed,
     })
     .setFooter({text: FOOTER_MESSAGE})
