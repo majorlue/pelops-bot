@@ -69,7 +69,14 @@ async function floors(interaction: CommandInteraction) {
     const messageChannel = await client.channels.fetch(message.channelId);
     if (messageChannel && messageChannel.type === ChannelType.GuildText) {
       const discordMsg = await messageChannel.messages.fetch(message.id);
-      if (discordMsg) await discordMsg.edit({embeds: [currentHeightsEmbed()]});
+      if (discordMsg)
+        await discordMsg.edit({
+          embeds: [
+            currentHeightsEmbed().setDescription(
+              `Message updates as heights change`
+            ),
+          ],
+        });
     }
 
     // if edit succeeds, then create db entry to update the message in future

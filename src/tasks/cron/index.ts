@@ -10,7 +10,7 @@ const cron: {
 } = {
   updateFloorsMessages: {
     job: updateFloorsMessages,
-    cron: '0 * * * *', // runs on the hour, every hour
+    cron: '1 * * * *', // runs on minute 1, every hour
   },
 };
 

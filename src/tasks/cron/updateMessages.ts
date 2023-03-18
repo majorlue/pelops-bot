@@ -25,7 +25,13 @@ export async function updateFloorsMessages(job: Job): Promise<void> {
         const discordMsg = await messageChannel.messages.fetch(messageId);
         // if the message exists, then update it with the new heights
         if (discordMsg)
-          await discordMsg.edit({embeds: [currentHeightsEmbed()]});
+          await discordMsg.edit({
+            embeds: [
+              currentHeightsEmbed().setDescription(
+                `Message updates as heights change`
+              ),
+            ],
+          });
         // if the message wasn't found remove from db so it won't update in the future
         else await prisma.persistentMessage.delete({where: {id: message.id}});
       }

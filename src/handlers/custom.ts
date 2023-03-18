@@ -61,7 +61,7 @@ export function currentHeightsEmbed() {
   )[0].name.length;
 
   // use a language-formatted code block for Tower heights display
-  let floorEmbed = `\`\`\`prolog\n`;
+  let floorEmbed = '';
 
   // populate tower heights display block with a specific format
   towers.forEach(tower => {
@@ -69,22 +69,16 @@ export function currentHeightsEmbed() {
       // format block to be evenly spaced and right-aligned
       (tower.name.length < longestThemeName
         ? // if name is shorter than the longest theme, fill from left with spaces
-          `${' '.repeat(longestThemeName - tower.name.length) + tower.name}`
+          `\`${' '.repeat(longestThemeName - tower.name.length) + tower.name}\``
         : // if it is the longest theme name, no need to fill spaces
-          `${tower.name}`) +
+          `\`${tower.name}\``) +
       // append current floor count
-      `: ${tower.floors}\n`;
+      `: **${tower.floors}**\n`;
   });
-
-  // close code block
-  floorEmbed += `\`\`\``;
 
   // build embed for the command
   return new EmbedBuilder()
-    .setAuthor({
-      // not actually author, just the top-most header text
-      name: 'Floor Heights - Towers of Olympia',
-    })
+    .setTitle('Floor Heights - Towers of Olympia')
     .addFields({
       // second header text for current UTC display and insert heights code block
       name: `${dayjs.utc(date).format('dddd HHmm')} UTC`,
