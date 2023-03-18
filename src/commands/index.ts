@@ -3,6 +3,7 @@ import {Command} from '../interfaces';
 import admin from './admin';
 import chests from './chests';
 import contributor from './contributor';
+import discord from './discord';
 import display from './display';
 import encounter from './encounter';
 import floors from './floors';
@@ -16,6 +17,7 @@ const commandList: Command[] = [
   chests,
   display,
   contributor,
+  discord,
   encounter,
   floors,
   keys,

@@ -12,11 +12,11 @@ const envVars: Record<string, string | number | undefined> = {
 
   // Bot Commands
   EMBED_COLOUR: process.env.EMBED_COLOUR || 'DarkPurple',
-  FOOTER_MESSAGE:
-    process.env.FOOTER_MESSAGE || `made by Major#1005 | v${version}`,
+  FOOTER_MESSAGE: `/discord | v${version} | made by Major#1005`,
   SUBMIT_THRESHOLD: process.env.SUBMIT_THRESHOLD || 3,
   IMAGE_PATH: 'https://orna.guide/static/orna/img/',
   CODEX_PREFIX: 'https://playorna.com',
+  DISCORD_INVITE: 'https://discord.gg/QejSraJTra',
 
   // Redis
   REDIS_URL: process.env.REDIS_URL,
