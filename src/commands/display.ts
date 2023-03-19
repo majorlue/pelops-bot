@@ -57,7 +57,12 @@ async function floors(interaction: CommandInteraction) {
           iconURL: interaction.user.avatarURL() || '',
         })
         .setTitle(`Testing Permissions...`)
-        .setDescription('Checking if this can be updated in the future...')
+        .setDescription(
+          'Checking if this can be updated in the future...\n\n' +
+            'If this message does not change, then Pelops is missing the following permissions:\n' +
+            '- View Channel\n' +
+            '- Embed Links'
+        )
         .setFooter({text: FOOTER_MESSAGE})
         .setColor(EMBED_COLOUR as ColorResolvable)
         .setTimestamp(),
@@ -102,7 +107,7 @@ async function floors(interaction: CommandInteraction) {
           })
           .setTitle(`Missing Permissions`)
           .setDescription(
-            'Pelops requires channel access to update this message later!'
+            'Pelops requires `View Channel` and `Embed Link` permissions for this command!'
           )
           .setFooter({text: FOOTER_MESSAGE})
           .setColor(EMBED_COLOUR as ColorResolvable)
