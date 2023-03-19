@@ -33,12 +33,12 @@ export async function updateFloorsMessages(job: Job): Promise<void> {
             ],
           });
         // if the message wasn't found remove from db so it won't update in the future
-        else await prisma.persistentMessage.delete({where: {id: message.id}});
+        else await prisma.persistentMessage.delete({where: {messageId}});
       }
       // if the channel wasn't found remove from db so it won't update in the future
       // channel could be deleted, or bot lacks perms
     } catch (err) {
-      await prisma.persistentMessage.delete({where: {id: message.id}});
+      await prisma.persistentMessage.delete({where: {messageId}});
     }
   }
 }

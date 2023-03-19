@@ -5,7 +5,7 @@ import {
   CommandInteraction,
   EmbedBuilder,
 } from 'discord.js';
-import {config} from '../config';
+import {config, isProd} from '../config';
 import {
   client,
   currentHeightsEmbed,
@@ -84,6 +84,9 @@ async function floors(interaction: CommandInteraction) {
       data: {
         channelId: message.channelId,
         messageId: message.id,
+        userId: interaction.user.id,
+        guildId: message.guild?.id || '',
+        testing: isProd,
         type: 'curr_floors',
       },
     });

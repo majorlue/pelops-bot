@@ -84,9 +84,11 @@ model Monster {
 
 // table for messages that require persistent handling
 model PersistentMessage {
-  id        String   @id @default(uuid())
-  messageId String   @map("message_id")
+  messageId String   @id @map("message_id")
   channelId String   @map("channel_id")
+  userId    String   @map("user_id")
+  guildId   String   @map("guild_id")
+  testing   Boolean
   type      String? // type of handling this requires
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

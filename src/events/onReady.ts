@@ -1,14 +1,16 @@
-import {REST} from '@discordjs/rest';
+import {DiscordAPIError, REST} from '@discordjs/rest';
 import {Routes} from 'discord-api-types/v9';
-import {ActivityType, Client} from 'discord.js';
+import {ActivityType, ChannelType, Client} from 'discord.js';
 import {commandHash, commandList, presenceCmds} from '../commands';
-import {config} from '../config';
-import {leadMonsters, logger} from '../handlers';
+import {config, isProd} from '../config';
+import {currentHeightsEmbed, leadMonsters, logger, prisma} from '../handlers';
 
 // bot client token, for use with discord API
 const BOT_TOKEN = config.BOT_TOKEN;
 // interval to change bot presence (status message)
 const PRESENCE_TIMER = Number(config.PRESENCE_TIMER) * 1000; // convert s to ms
+// interval to update floor dislay message
+const UPDATE_TIMER = Number(config.FLOOR_DISPLAY_TIMER) * 1000; // convert s to ms
 
 // complete startup tasks, log time taken
 const onReady = async (client: Client) => {
@@ -63,6 +65,54 @@ const onReady = async (client: Client) => {
         });
     }
   }, PRESENCE_TIMER);
+
+  // retrieve messages that are to be lively updated
+  setInterval(async () => {
+    const persistentMessages = await prisma.persistentMessage.findMany({
+      where: {type: {equals: 'curr_floors'}, testing: isProd},
+    });
+
+    // iterate through each one
+    for (const message of persistentMessages) {
+      const {messageId, channelId} = message;
+      // try/catch block, handling Discord API errors appropriately
+      try {
+        // try fetching the channel, may throw '50001', bot can't see channel
+        const messageChannel = await client.channels.fetch(channelId);
+        if (messageChannel && messageChannel.type === ChannelType.GuildText) {
+          // try fetching the message, may throw '10008', message doesn't exist (deleted?)
+          const discordMsg = await messageChannel.messages.fetch(messageId);
+          console.log(`attempting to update message in ${messageChannel.name}`);
+          // if the message exists, then update it with the new heights
+          if (discordMsg)
+            await discordMsg.edit({
+              embeds: [
+                currentHeightsEmbed().setDescription(
+                  `Message updates as heights change`
+                ),
+              ],
+            });
+        }
+      } catch (err) {
+        const discordErr = err as DiscordAPIError;
+        // discord API error codes
+        // https://github.com/meew0/discord-api-docs-1/blob/master/docs/topics/RESPONSE_CODES.md#json-error-response
+        switch (discordErr.code) {
+          case 10008: // Unknown message
+            await prisma.persistentMessage.delete({where: {messageId}});
+            break;
+          case 50001: // Missing access
+            await prisma.persistentMessage.delete({where: {messageId}});
+            break;
+          case 50005: // Cannot edit a message authored by another user
+            break;
+        }
+      }
+    }
+    logger.info(`Updated ${persistentMessages.length} persistent messages`, {
+      type: 'info',
+    });
+  }, UPDATE_TIMER);
 
   logger.info(`Set presence to rotate between: ${presenceCmds.join(', ')}`, {
     type: 'startup',
