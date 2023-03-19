@@ -22,6 +22,7 @@
   "devDependencies": {
     "@types/newrelic": "^9.4.0",
     "@types/node": "^14.18.37",
+    "@types/node-cron": "^3.0.7",
     "gts": "^3.1.1",
     "prisma": "^4.11.0",
     "ts-node": "^10.9.1",
@@ -41,6 +42,7 @@
     "fuzzysort": "^2.0.4",
     "ioredis": "^5.3.1",
     "newrelic": "^8.17.0",
+    "node-cron": "^3.0.2",
     "pm2": "^5.2.2",
     "winston": "^3.8.2"
   }

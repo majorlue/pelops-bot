@@ -1,6 +1,7 @@
 import {DiscordAPIError, REST} from '@discordjs/rest';
 import {Routes} from 'discord-api-types/v9';
 import {ActivityType, ChannelType, Client} from 'discord.js';
+import {schedule} from 'node-cron';
 import {commandHash, commandList, presenceCmds} from '../commands';
 import {config, isProd} from '../config';
 import {currentHeightsEmbed, leadMonsters, logger, prisma} from '../handlers';
@@ -51,7 +52,8 @@ const onReady = async (client: Client) => {
     time,
   });
 
-  setInterval(() => {
+  // cron schedule to update messages every 3 seconds
+  schedule('*/3 * * * * *', () => {
     if (client.user) {
       if (client.user.presence.activities[0]) {
         const prev = client.user.presence.activities[0].name;
@@ -64,10 +66,10 @@ const onReady = async (client: Client) => {
           type: ActivityType.Listening,
         });
     }
-  }, PRESENCE_TIMER);
+  });
 
-  // retrieve messages that are to be lively updated
-  setInterval(async () => {
+  // cron schedule to update messages each hour
+  schedule('0 * * * *', async () => {
     const persistentMessages = await prisma.persistentMessage.findMany({
       where: {type: {equals: 'curr_floors'}, testing: isProd},
     });
@@ -111,7 +113,7 @@ const onReady = async (client: Client) => {
     logger.info(`Updated ${persistentMessages.length} persistent messages`, {
       type: 'info',
     });
-  }, UPDATE_TIMER);
+  });
 
   logger.info(`Set presence to rotate between: ${presenceCmds.join(', ')}`, {
     type: 'startup',
