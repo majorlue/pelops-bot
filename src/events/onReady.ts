@@ -82,7 +82,6 @@ const onReady = async (client: Client) => {
         if (messageChannel && messageChannel.type === ChannelType.GuildText) {
           // try fetching the message, may throw '10008', message doesn't exist (deleted?)
           const discordMsg = await messageChannel.messages.fetch(messageId);
-          console.log(`attempting to update message in ${messageChannel.name}`);
           // if the message exists, then update it with the new heights
           if (discordMsg)
             await discordMsg.edit({
