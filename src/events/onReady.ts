@@ -52,7 +52,7 @@ const onReady = async (client: Client) => {
     time,
   });
 
-  // cron schedule to update messages every 3 seconds
+  // cron schedule to update presence every 3 seconds
   schedule('*/3 * * * * *', () => {
     if (client.user) {
       if (client.user.presence.activities[0]) {
@@ -68,7 +68,7 @@ const onReady = async (client: Client) => {
     }
   });
 
-  // cron schedule to update messages each hour
+  // cron schedule to update messages every hour
   schedule('0 * * * *', async () => {
     const persistentMessages = await prisma.persistentMessage.findMany({
       where: {type: {equals: 'curr_floors'}, testing: isProd},

@@ -76,14 +76,23 @@ export function currentHeightsEmbed() {
       `: **${tower.floors}**\n`;
   });
 
+  const towersGrow = Math.round(date.valueOf() / 1000) + secondsUntilFloors();
+  const towersLastGrew = Math.round(date.valueOf() / 1000) + floorsLastAdded();
+
   // build embed for the command
   return new EmbedBuilder()
     .setTitle('Floor Heights - Towers of Olympia')
-    .addFields({
-      // second header text for current UTC display and insert heights code block
-      name: `${dayjs.utc(date).format('dddd HHmm')} UTC`,
-      value: floorEmbed,
-    })
+    .addFields(
+      {
+        // second header text for current UTC display and insert heights code block
+        name: `${dayjs.utc(date).format('dddd HHmm')} UTC`,
+        value: floorEmbed,
+      },
+      {
+        name: '\u200b',
+        value: `Towers last grew <t:${towersLastGrew}:R>, and will grow again <t:${towersGrow}:R>`,
+      }
+    )
     .setFooter({text: FOOTER_MESSAGE})
     .setColor(EMBED_COLOUR as ColorResolvable)
     .setTimestamp();
@@ -271,3 +280,42 @@ const currentFloors = (
 
   return 15 + 5 * daysSinceReset + dayFloors;
 };
+
+const towerTimes = [1, 5, 10, 15, 20, 25];
+const secondsUntilFloors = () => {
+  const date = dayjs().utc();
+  let currHour = date.hour();
+  for (const hour of towerTimes)
+    if (currHour < hour) {
+      currHour = hour - currHour - 1;
+      break;
+    }
+  const currMins = 60 - date.minute();
+
+  return (currMins + currHour * 60) * 60;
+};
+
+const floorsLastAdded = () => {
+  const date = dayjs().utc();
+  let currHour = date.hour();
+  for (const hour of towerTimes)
+    if (currHour > hour) {
+      currHour = hour - currHour - 1;
+      break;
+    }
+  const currMins = 60 - date.minute();
+
+  return (currMins + currHour * 60) * 60;
+};
+
+// Tower_times = [1,5,10,15,20,25];
+
+// def minutesUntilTower():
+//     currentTime = datetime.now(timezone.utc)
+//     currentHours = int(currentTime.strftime("%H"))
+//     for hour in Tower_times:
+//         if (currentHours < hour):
+//             currentHours = (hour - currentHours) - 1
+//             break
+//     currentMinutes = 60 - int(currentTime.strftime("%M"))
+//     return currentMinutes + (currentHours * 60)
