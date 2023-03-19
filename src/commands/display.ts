@@ -86,7 +86,7 @@ async function floors(interaction: CommandInteraction) {
         messageId: message.id,
         userId: interaction.user.id,
         guildId: message.guild?.id || '',
-        testing: isProd,
+        production: isProd,
         type: 'curr_floors',
       },
     });

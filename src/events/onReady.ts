@@ -71,7 +71,7 @@ const onReady = async (client: Client) => {
   // cron schedule to update messages every hour
   schedule('0 * * * *', async () => {
     const persistentMessages = await prisma.persistentMessage.findMany({
-      where: {type: {equals: 'curr_floors'}, testing: isProd},
+      where: {type: {equals: 'curr_floors'}, production: isProd},
     });
 
     // iterate through each one
