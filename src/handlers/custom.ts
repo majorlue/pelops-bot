@@ -76,9 +76,6 @@ export function currentHeightsEmbed() {
       `: **${tower.floors}**\n`;
   });
 
-  const towersGrow = Math.round(date.valueOf() / 1000) + secondsUntilFloors();
-  const towersLastGrew = Math.round(date.valueOf() / 1000) + floorsLastAdded();
-
   // build embed for the command
   return new EmbedBuilder()
     .setTitle('Floor Heights - Towers of Olympia')
@@ -90,7 +87,7 @@ export function currentHeightsEmbed() {
       },
       {
         name: '\u200b',
-        value: `Towers last grew <t:${towersLastGrew}:R>, and will grow again <t:${towersGrow}:R>`,
+        value: `Towers last grew <t:${floorsLastAdded()}:R>, and will grow again <t:${floorsGrowAt()}:R>`,
       }
     )
     .setFooter({text: FOOTER_MESSAGE})
@@ -281,41 +278,36 @@ const currentFloors = (
   return 15 + 5 * daysSinceReset + dayFloors;
 };
 
-const towerTimes = [1, 5, 10, 15, 20, 25];
-const secondsUntilFloors = () => {
-  const date = dayjs().utc();
-  let currHour = date.hour();
-  for (const hour of towerTimes)
-    if (currHour < hour) {
-      currHour = hour - currHour - 1;
+/**
+ * Credit to @Knight411 for the initial code behind these two functions, cheers <3
+ */
+const towerGrowTimes = [1, 5, 10, 15, 20, 25]; // mystical "25th hour" thought of by knight
+export function floorsGrowAt() {
+  const time = dayjs().utc();
+  let growsAt = dayjs().utc();
+  // iterate through hours that towers grow, find FIRST time that hasn't yet passed
+  for (const hour of towerGrowTimes)
+    if (time.hour() < hour) {
+      // set the grows at time to this, zeroing out the minutes at seconds
+      // keeps the date and hour (and ms, but that doesn't change things)
+      growsAt = growsAt.set('hour', hour).set('minute', 0).set('second', 0);
       break;
     }
-  const currMins = 60 - date.minute();
+  // return time since unix epoch for use with discord formatting or typescript
+  return growsAt.unix();
+}
 
-  return (currMins + currHour * 60) * 60;
-};
+const towerGrewTimes = [1, 5, 10, 15, 20];
+export function floorsLastAdded() {
+  const time = dayjs().utc();
+  let grewAt = dayjs().utc();
+  // iterate through hours that towers grew, find LAST time that hasn't yet passed
+  for (const hour of towerGrewTimes)
+    if (time.hour() >= hour)
+      // set the grew at time to this, zeroing out the minutes at seconds
+      // keeps the date and hour (and ms, but that doesn't change things)
+      grewAt = grewAt.set('hour', hour).set('minute', 0).set('second', 0);
 
-const floorsLastAdded = () => {
-  const date = dayjs().utc();
-  let currHour = date.hour();
-  for (const hour of towerTimes)
-    if (currHour > hour) {
-      currHour = hour - currHour - 1;
-      break;
-    }
-  const currMins = 60 - date.minute();
-
-  return (currMins + currHour * 60) * 60;
-};
-
-// Tower_times = [1,5,10,15,20,25];
-
-// def minutesUntilTower():
-//     currentTime = datetime.now(timezone.utc)
-//     currentHours = int(currentTime.strftime("%H"))
-//     for hour in Tower_times:
-//         if (currentHours < hour):
-//             currentHours = (hour - currentHours) - 1
-//             break
-//     currentMinutes = 60 - int(currentTime.strftime("%M"))
-//     return currentMinutes + (currentHours * 60)
+  // return time since unix epoch for use with discord formatting or typescript
+  return grewAt.unix();
+}
