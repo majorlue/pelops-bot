@@ -16,7 +16,7 @@ const envVars: Record<string, string | number | undefined> = {
   SUBMIT_THRESHOLD: process.env.SUBMIT_THRESHOLD || 3,
   IMAGE_PATH: 'https://orna.guide/static/orna/img/',
   CODEX_PREFIX: 'https://playorna.com',
-  DISCORD_INVITE: 'https://discord.gg/QejSraJTra',
+  DISCORD_INVITE: 'https://discord.gg/qsWtkwj6Yg',
 
   // Redis
   REDIS_URL: process.env.REDIS_URL,

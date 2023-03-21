@@ -12,7 +12,7 @@ Heya, this is the repo for the discord bot Pelops. The purpose of this project i
 
 ### Discord
 
-I don't have a dedicated Discord server for this bot, but instead we're hanging out over at [**Cade Labs** Discord](https://discord.gg/QejSraJTra)! (click)
+I don't have a dedicated Discord server for this bot, but instead we're hanging out over at [**Cade Labs** Discord](https://discord.gg/qsWtkwj6Yg)! (click)
 
 Information about the bot, discussions, suggestions, bug reports etc. will be handled in a dedicated category over there. This should be more accessible as not everyone is familiar with GitHub.
 

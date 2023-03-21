@@ -20,7 +20,10 @@ const command: Command = {
           .setDescription(
             `Pelops is part of **Cade Labs**! ` +
               `Here you can discuss stuff, see the latest patches, submit suggestions and report bugs. ` +
-              `You're also free to hang out with fellow Cade Labs people and see all the projects being worked on!`
+              `You're also free to hang out with fellow Cade Labs people and see all the projects being worked on!` +
+              `\n\n` +
+              `You'll find details about Pelops (including how to add it to your server) in <#1086495607868371015> -- the channel the invite links you to.` +
+              ` Thanks for your interest in the project! <3`
           )
           .setURL(DISCORD_INVITE)
           .setFooter({text: FOOTER_MESSAGE})
