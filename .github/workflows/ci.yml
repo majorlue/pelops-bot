@@ -5,9 +5,6 @@ on:
       - main
 concurrency: ci
 
-env:
-  IMAGE_NAME: pelops-bot
-
 jobs:
   build:
     runs-on: self-hosted
@@ -52,7 +49,7 @@ jobs:
         with:
           images: |
             registry.digitalocean.com/orna-bot/pelops
-            ghcr.io/${{ github.repository_owner }}/${{ IMAGE_NAME }}
+            ghcr.io/${{ github.repository_owner }}/pelops-bot
           tags: |
             type=semver,pattern={{major}},value=${{ env.version }}
             type=semver,pattern={{major}}.{{minor}},value=${{ env.version }}
