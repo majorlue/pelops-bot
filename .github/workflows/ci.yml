@@ -11,6 +11,9 @@ env:
 jobs:
   build:
     runs-on: self-hosted
+    permissions:
+      packages: write
+      contents: read
     if: "!contains(github.event.head_commit.message, '#skip-ci')"
     steps:
       - name: Check Out Repo
