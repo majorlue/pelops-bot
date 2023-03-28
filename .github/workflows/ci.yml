@@ -15,6 +15,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
       - name: Dry incremement patch version
         id: tag-dry-run
         uses: anothrNick/github-tag-action@1.36.0
