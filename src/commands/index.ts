@@ -2,6 +2,7 @@ import {CommandInteraction} from 'discord.js';
 import {Command} from '../interfaces';
 import admin from './admin';
 import chests from './chests';
+import chestskeys from './chestskeys';
 import contributor from './contributor';
 import discord from './discord';
 import display from './display';
@@ -15,6 +16,7 @@ import tower from './tower';
 const commandList: Command[] = [
   admin,
   chests,
+  chestskeys,
   display,
   contributor,
   discord,
