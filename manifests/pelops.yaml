@@ -31,8 +31,6 @@ spec:
               value: 'production'
             - name: NEW_RELIC_APP_NAME
               value: 'pelops-bot'
-            - name: BOT_OWNER
-              value: '153296359871479809'
             - name: BOT_TOKEN
               valueFrom:
                 secretKeyRef:
