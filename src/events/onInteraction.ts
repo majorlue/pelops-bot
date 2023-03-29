@@ -11,6 +11,7 @@ import {
 import {
   adminCommandEmbed,
   checkPerms,
+  commandErrorEmbed,
   contribCommandEmbed,
   leadMonsters,
   logger,
@@ -41,37 +42,46 @@ const onInteraction = async (interaction: Interaction) => {
 
   // verify intertaction type here and run the approriate function
   if (interaction.isCommand()) {
-    // we do a little instrumentation
-    const start = Date.now();
+    // wrap ALL commands for error handling -- gives user feedback if there's an issue
+    try {
+      // we do a little instrumentation
+      const start = Date.now();
+      // Discord requires acknowledgement within 3 seconds, so just defer reply for now
+      await interaction.deferReply({
+        ephemeral: ephemeralCmds.includes(interaction.commandName),
+      });
+      const {commandName: command, user} = interaction;
 
-    // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-    await interaction.deferReply({
-      ephemeral: ephemeralCmds.includes(interaction.commandName),
-    });
-    const {commandName: command, user} = interaction;
+      // check if user has required permissions for elevated commands
+      if (ownerCmds.includes(command) && !(await checkPerms(user.id)).owner) {
+        await interaction.editReply(ownerCommandEmbed(interaction));
+        return;
+      }
+      if (adminCmds.includes(command) && !(await checkPerms(user.id)).admin) {
+        await interaction.editReply(adminCommandEmbed(interaction));
+        return;
+      }
+      if (
+        contribCmds.includes(command) &&
+        !(await checkPerms(user.id)).contrib
+      ) {
+        await interaction.editReply(contribCommandEmbed(interaction));
+        return;
+      } else await commandHash[command](interaction);
 
-    // check if user has required permissions for elevated commands
-    if (ownerCmds.includes(command) && !(await checkPerms(user.id)).owner) {
-      await interaction.editReply(ownerCommandEmbed(interaction));
+      const time = `${Date.now() - start}ms`;
+      logger.info(`Executed command /${command} in ${time}`, {
+        time,
+        command,
+        type: 'command',
+        user: interaction.user.tag,
+      });
       return;
+    } catch (err) {
+      // edit interaction response to notify players error happened and log error
+      await interaction.editReply(commandErrorEmbed(interaction));
+      logger.error(err);
     }
-    if (adminCmds.includes(command) && !(await checkPerms(user.id)).admin) {
-      await interaction.editReply(adminCommandEmbed(interaction));
-      return;
-    }
-    if (contribCmds.includes(command) && !(await checkPerms(user.id)).contrib) {
-      await interaction.editReply(contribCommandEmbed(interaction));
-      return;
-    } else await commandHash[command](interaction);
-
-    const time = `${Date.now() - start}ms`;
-    logger.info(`Executed command /${command} in ${time}`, {
-      time,
-      command,
-      type: 'command',
-      user: interaction.user.tag,
-    });
-    return;
   }
 };
 

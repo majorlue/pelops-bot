@@ -182,6 +182,27 @@ export function contribCommandEmbed(interaction: CommandInteraction) {
   };
 }
 
+export function commandErrorEmbed(interaction: CommandInteraction) {
+  return {
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({
+          name: interaction.user.tag,
+          iconURL: interaction.user.avatarURL() || '',
+        })
+        .setTitle(`Something Went Wrong )=`)
+        .setDescription(
+          `There was an issue trying to execute \`/${interaction.commandName}\`! ` +
+            `The issue has been logged and will be looked into. Feel free to try again shortly. ` +
+            `If the problem persists, please submit a bug report in the Cade Labs Discord (\`/discord\`).`
+        )
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp(),
+    ],
+  };
+}
+
 export function sleep(ms: number) {
   return new Promise(resolve => {
     setTimeout(resolve, ms);
