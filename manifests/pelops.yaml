@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pelops-bot
+  labels:
+    app: pelops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pelops
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: pelops
+    spec:
+      containers:
+        - name: pelops-bot
+          image: ghcr.io/majorlue/pelops-bot:latest # latest tag ensures image is always pulled
+          resources:
+            limits:
+              memory: 500Mi
+              cpu: 100m # 100 millicpus = 0.1 vCPUs
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: NEW_RELIC_APP_NAME
+              value: 'pelops-bot'
+            - name: BOT_OWNER
+              value: '153296359871479809'
+            - name: BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: pelops-env-vars
+                  key: BOT_TOKEN
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: pelops-env-vars
+                  key: DATABASE_URL
+            - name: SHADOW_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: pelops-env-vars
+                  key: SHADOW_DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: pelops-env-vars
+                  key: REDIS_URL
+            - name: NEW_RELIC_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pelops-env-vars
+                  key: NEW_RELIC_LICENSE_KEY
+      imagePullSecrets:
+        - name: ghcr-login

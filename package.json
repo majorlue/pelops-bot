@@ -17,7 +17,7 @@
     "postbuild": "copyfiles package.json build",
     "watch": "nodemon -L ./src/index.ts",
     "watch-worker": "nodemon -L ./src/worker.ts",
-    "start": "pm2 start pm2.config.js --no-daemon"
+    "start": "node ./build/src/index.js"
   },
   "devDependencies": {
     "@types/newrelic": "^9.4.0",
@@ -43,7 +43,6 @@
     "ioredis": "^5.3.1",
     "newrelic": "^8.17.0",
     "node-cron": "^3.0.2",
-    "pm2": "^5.2.2",
     "winston": "^3.8.2"
   }
 }
