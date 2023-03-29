@@ -1,5 +1,5 @@
 import {ColorResolvable, CommandInteraction, EmbedBuilder} from 'discord.js';
-import {dayjs} from '.';
+import {client, dayjs} from '.';
 import {config} from '../config';
 import {prisma} from './prisma';
 
@@ -187,8 +187,8 @@ export function commandErrorEmbed(interaction: CommandInteraction) {
     embeds: [
       new EmbedBuilder()
         .setAuthor({
-          name: interaction.user.tag,
-          iconURL: interaction.user.avatarURL() || '',
+          name: client.user?.tag || '',
+          iconURL: client.user?.avatarURL() || '',
         })
         .setTitle(`Something Went Wrong )=`)
         .setDescription(

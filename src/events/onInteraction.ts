@@ -78,9 +78,21 @@ const onInteraction = async (interaction: Interaction) => {
       });
       return;
     } catch (err) {
+      // typecasting for safety. we know it's a type of error
+      const error = err as Error;
+      // TODO: handle other error types explicitly. main ones are prisma and discordjs
+
       // edit interaction response to notify players error happened and log error
       await interaction.editReply(commandErrorEmbed(interaction));
-      logger.error(err);
+
+      // log error with level 'error' and include additional context in log obj
+      logger.error(error.message, {
+        command: interaction.commandName,
+        args: interaction.options.data,
+        user: interaction.user.tag,
+        guild: interaction.guildId,
+        ...error,
+      });
     }
   }
 };
