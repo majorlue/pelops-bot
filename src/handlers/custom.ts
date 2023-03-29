@@ -203,6 +203,47 @@ export function commandErrorEmbed(interaction: CommandInteraction) {
   };
 }
 
+export function devErrorEmbed(interaction: CommandInteraction, error: Error) {
+  return {
+    embeds: [
+      new EmbedBuilder()
+        .setAuthor({
+          name: client.user?.tag || '',
+          iconURL: client.user?.avatarURL() || '',
+        })
+        .setTitle(`Error Encountered`)
+        .setDescription(`Caught exception. Details below:`)
+        .setFields(
+          {
+            name: 'Internal Error Message',
+            value: error.message || '\u200b',
+          },
+          {
+            name: 'Interaction',
+            value: `\`/${interaction.commandName}\`` || '\u200b',
+          },
+          {
+            name: 'Interaction Options',
+            value: JSON.stringify(interaction.options.data) || '\u200b',
+          },
+          {
+            name: 'Interaction User',
+            value: interaction.user.tag || '\u200b',
+          },
+          {
+            name: 'Interaction Guild',
+            value:
+              `${interaction.guild?.name} (\`${interaction.guildId}\`)` ||
+              '\u200b',
+          }
+        )
+        .setFooter({text: FOOTER_MESSAGE})
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setTimestamp(),
+    ],
+  };
+}
+
 export function sleep(ms: number) {
   return new Promise(resolve => {
     setTimeout(resolve, ms);

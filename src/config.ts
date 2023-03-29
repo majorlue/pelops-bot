@@ -2,13 +2,14 @@ require('newrelic');
 
 import {version} from '../package.json';
 const isProd = process.env.NODE_ENV === 'production';
-// TODO: use isProd for more robust testing
+// TODO: explain each config setting and section in more detail
 const envVars: Record<string, string | number | undefined> = {
-  // Bot Setup
+  // Bot Config
   BOT_TOKEN: process.env.BOT_TOKEN,
-  BOT_OWNER: process.env.BOT_OWNER || '153296359871479809',
   PRESENCE_TIMER: process.env.PRESENCE_TIMER || 5,
   FLOOR_DISPLAY_TIMER: process.env.FLOOR_DISPLAY_TIMER || 900,
+  BOT_OWNER: process.env.BOT_OWNER || '153296359871479809',
+  ERROR_CHANNEL: isProd ? '1090705284646842488' : '376942095711338496',
 
   // Bot Commands
   EMBED_COLOUR: process.env.EMBED_COLOUR || 'DarkPurple',

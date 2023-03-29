@@ -1,4 +1,4 @@
-import {Interaction} from 'discord.js';
+import {ChannelType, Interaction} from 'discord.js';
 import {go as search} from 'fuzzysort';
 import {
   adminCmds,
@@ -8,15 +8,20 @@ import {
   monsterAutoCmds,
   ownerCmds,
 } from '../commands';
+import {config} from '../config';
 import {
   adminCommandEmbed,
   checkPerms,
+  client,
   commandErrorEmbed,
   contribCommandEmbed,
+  devErrorEmbed,
   leadMonsters,
   logger,
   ownerCommandEmbed,
 } from '../handlers';
+
+const {ERROR_CHANNEL} = config;
 
 // define fuzzy search options
 const searchOpts = {
@@ -84,6 +89,11 @@ const onInteraction = async (interaction: Interaction) => {
 
       // edit interaction response to notify players error happened and log error
       await interaction.editReply(commandErrorEmbed(interaction));
+
+      // send discord message to error channel for more visibility
+      const errChannel = await client.channels.fetch(ERROR_CHANNEL);
+      if (errChannel && errChannel.type === ChannelType.GuildText)
+        errChannel.send(devErrorEmbed(interaction, error));
 
       // log error with level 'error' and include additional context in log obj
       logger.error(error.message, {
