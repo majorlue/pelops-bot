@@ -94,14 +94,10 @@ jobs:
       packages: write
       contents: read
     if: "!contains(github.event.head_commit.message, '#skip-ci')"
+    needs: ['build'] # always run after build step
 
     steps:
-      - name: Check Out Repo
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
       - uses: steebchen/kubectl@v2.0.0
         with:
-          config: ${{ secrets.DEV_KUBECONFIG }}
+          config: ${{ secrets.KUBECONFIG }}
           command: apply -f ./manifests/pelops.yaml
