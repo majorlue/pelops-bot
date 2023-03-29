@@ -82,11 +82,9 @@ const command: Command = {
           .setDescription(embedText.replace('undefined', ''))
           .setThumbnail(towerSprites[theme])
           .setColor(EMBED_COLOUR as ColorResolvable)
+          .setFooter({text: FOOTER_MESSAGE})
+          .setTimestamp()
       );
-
-    responseEmbeds[responseEmbeds.length - 1]
-      .setFooter({text: FOOTER_MESSAGE})
-      .setTimestamp();
 
     await interaction.editReply({embeds: responseEmbeds});
   },
