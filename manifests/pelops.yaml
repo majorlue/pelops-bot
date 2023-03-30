@@ -65,3 +65,32 @@ spec:
                   key: NEW_RELIC_LICENSE_KEY
       imagePullSecrets:
         - name: ghcr-login
+
+---
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: pelops-runner
+  namespace: pelops-bot
+spec:
+  replicas: 1
+  template:
+    spec:
+      dockerVolumeMounts:
+        - mountPath: /var/lib/docker
+          name: docker
+      volumeMounts:
+        - mountPath: /tmp
+          name: tmp
+      volumes:
+        - name: docker
+          emptyDir:
+            medium: Memory
+        - name: work
+          emptyDir:
+            medium: Memory
+        - name: tmp
+          emptyDir:
+            medium: Memory
+      ephemeral: true
+      repository: majorlue/pelops-bot
