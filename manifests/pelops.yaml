@@ -1,7 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pelops-bot
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pelops-bot
+  name: pelops-deployment
+  namespace: pelops-bot
   labels:
     app: pelops
 spec:
