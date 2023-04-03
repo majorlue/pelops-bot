@@ -79,7 +79,10 @@ const command: Command = {
           .setAuthor({
             name: `${theme} | Week of ${week}`,
           })
-          .setDescription(embedText.replace('undefined', ''))
+          .setDescription(
+            embedText.replace('undefined', '') ||
+              `No floors submitted for week ${week}`
+          )
           .setThumbnail(towerSprites[theme])
           .setColor(EMBED_COLOUR as ColorResolvable)
           .setFooter({text: FOOTER_MESSAGE})
