@@ -108,4 +108,4 @@ jobs:
         with:
           config: ${{ secrets.KUBECONFIG }}
           command: |
-            patch deployment pelops-deployment -n=cadelabs -p \"{\"spec\": {\"template\": {\"metadata\": { \"labels\": {  \"redeploy\": \"$(date +\%s)\"}}}}}\"
+            patch deployment pelops-deployment -n=cadelabs -p \"{\"spec\": {\"template\": {\"metadata\": { \"labels\": {  \"redeploy\": \"$(date +%s)\"}}}}}\"
