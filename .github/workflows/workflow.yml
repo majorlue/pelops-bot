@@ -7,7 +7,8 @@ concurrency: cd
 
 jobs:
   build:
-    runs-on: self-hosted
+    # runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: read
@@ -89,7 +90,8 @@ jobs:
           DEFAULT_BUMP: none
 
   deploy:
-    runs-on: self-hosted
+    # runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: read
