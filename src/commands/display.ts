@@ -54,7 +54,7 @@ async function floors(interaction: CommandInteraction) {
       new EmbedBuilder()
         .setAuthor({
           name: interaction.user.tag,
-          iconURL: interaction.user.avatarURL() || '',
+          iconURL: interaction.user.avatarURL() || undefined,
         })
         .setTitle(`Testing Permissions...`)
         .setDescription(
@@ -103,7 +103,7 @@ async function floors(interaction: CommandInteraction) {
         new EmbedBuilder()
           .setAuthor({
             name: interaction.user.tag,
-            iconURL: interaction.user.avatarURL() || '',
+            iconURL: interaction.user.avatarURL() || undefined,
           })
           .setTitle(`Missing Permissions`)
           .setDescription(

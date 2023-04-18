@@ -159,7 +159,7 @@ const command: Command = {
           new EmbedBuilder()
             .setAuthor({
               name: `Tower Floor Submission`,
-              iconURL: interaction.user.avatarURL() || '',
+              iconURL: interaction.user.avatarURL() || undefined,
             })
             .setTitle(`${theme} F${floor}: Not Submitted`)
             .setDescription(
@@ -292,7 +292,7 @@ const command: Command = {
           new EmbedBuilder()
             .setAuthor({
               name: `Tower Floor Submission`,
-              iconURL: interaction.user.avatarURL() || '',
+              iconURL: interaction.user.avatarURL() || undefined,
             })
             .setTitle(`${theme} F${floor}: Updated!`)
             .setDescription(
@@ -386,7 +386,7 @@ const command: Command = {
             new EmbedBuilder()
               .setAuthor({
                 name: `Tower Floor Submission`,
-                iconURL: interaction.user.avatarURL() || '',
+                iconURL: interaction.user.avatarURL() || undefined,
               })
               .setTitle(`${theme} F${floor}: Updated!`)
               .setDescription(
@@ -410,7 +410,7 @@ const command: Command = {
             new EmbedBuilder()
               .setAuthor({
                 name: `Tower Floor Submission`,
-                iconURL: interaction.user.avatarURL() || '',
+                iconURL: interaction.user.avatarURL() || undefined,
               })
               .setTitle(`${theme} F${floor}: Pending Approval`)
               .setDescription(

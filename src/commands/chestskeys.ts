@@ -53,6 +53,24 @@ const command: Command = {
       },
     });
 
+    // If no floors found, return empty message
+    if (floors.length === 0) {
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: `${theme} | Week of ${week}`,
+            })
+            .setDescription(`No Tower info found for ${theme} ${week}`)
+            .setThumbnail(towerSprites[theme])
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setFooter({text: FOOTER_MESSAGE})
+            .setTimestamp(),
+        ],
+      });
+      return;
+    }
+
     // sort key floors in ascending order
     floors.sort((a, b) => a.floor - b.floor);
 

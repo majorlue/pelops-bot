@@ -101,7 +101,7 @@ export function missingChannelPerms(interaction: CommandInteraction) {
       new EmbedBuilder()
         .setAuthor({
           name: interaction.user.tag,
-          iconURL: interaction.user.avatarURL() || '',
+          iconURL: interaction.user.avatarURL() || undefined,
         })
         .setTitle(`Permission Denied`)
         .setDescription('This can only be used by server moderators!')
@@ -118,7 +118,7 @@ export function monsterNotFoundEmbed(interaction: CommandInteraction) {
       new EmbedBuilder()
         .setAuthor({
           name: `Tower Floor Submission`,
-          iconURL: interaction.user.avatarURL() || '',
+          iconURL: interaction.user.avatarURL() || undefined,
         })
         .setTitle(`Invalid Input`)
         .setDescription(
@@ -137,7 +137,7 @@ export function ownerCommandEmbed(interaction: CommandInteraction) {
       new EmbedBuilder()
         .setAuthor({
           name: interaction.user.tag,
-          iconURL: interaction.user.avatarURL() || '',
+          iconURL: interaction.user.avatarURL() || undefined,
         })
         .setTitle(`Permission Denied`)
         .setDescription('This command is only available to Owners!')
@@ -154,7 +154,7 @@ export function adminCommandEmbed(interaction: CommandInteraction) {
       new EmbedBuilder()
         .setAuthor({
           name: interaction.user.tag,
-          iconURL: interaction.user.avatarURL() || '',
+          iconURL: interaction.user.avatarURL() || undefined,
         })
         .setTitle(`Permission Denied`)
         .setDescription('This command is only available to Admins!')
@@ -171,7 +171,7 @@ export function contribCommandEmbed(interaction: CommandInteraction) {
       new EmbedBuilder()
         .setAuthor({
           name: interaction.user.tag,
-          iconURL: interaction.user.avatarURL() || '',
+          iconURL: interaction.user.avatarURL() || undefined,
         })
         .setTitle(`Permission Denied`)
         .setDescription('This command is only available to Contributors!')
@@ -188,7 +188,7 @@ export function commandErrorEmbed(interaction: CommandInteraction) {
       new EmbedBuilder()
         .setAuthor({
           name: client.user?.tag || '',
-          iconURL: client.user?.avatarURL() || '',
+          iconURL: client.user?.avatarURL() || undefined,
         })
         .setTitle(`Something Went Wrong )=`)
         .setDescription(
@@ -209,7 +209,7 @@ export function devErrorEmbed(interaction: CommandInteraction, error: Error) {
       new EmbedBuilder()
         .setAuthor({
           name: client.user?.tag || '',
-          iconURL: client.user?.avatarURL() || '',
+          iconURL: client.user?.avatarURL() || undefined,
         })
         .setTitle(`Error Encountered`)
         .setDescription(`Caught exception. Details below:`)

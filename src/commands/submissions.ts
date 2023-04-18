@@ -152,7 +152,7 @@ const command: Command = {
       const responseEmbed = new EmbedBuilder()
         .setAuthor({
           name: interaction.user.tag,
-          iconURL: interaction.user.avatarURL() || '',
+          iconURL: interaction.user.avatarURL() || undefined,
         })
         .setTitle(`${theme} F${floor} Updated`)
         .setFields(...embedFields)
@@ -215,7 +215,7 @@ const command: Command = {
       const responseEmbed = new EmbedBuilder()
         .setAuthor({
           name: interaction.user.tag,
-          iconURL: interaction.user.avatarURL() || '',
+          iconURL: interaction.user.avatarURL() || undefined,
         })
         .setTitle(`${theme} F${floor} Submission Denied`)
         .setFields(...embedFields)

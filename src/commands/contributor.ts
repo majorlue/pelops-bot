@@ -61,7 +61,7 @@ const command: Command = {
       const responseEmbed = new EmbedBuilder()
         .setAuthor({
           name: userObj.tag as string,
-          iconURL: userObj.avatarURL as string,
+          iconURL: (userObj.avatarURL as string) || undefined,
         })
         .setTitle(`Added Contributor`)
         .setDescription(
@@ -92,7 +92,7 @@ const command: Command = {
       const responseEmbed = new EmbedBuilder()
         .setAuthor({
           name: userObj.tag as string,
-          iconURL: userObj.avatarURL as string,
+          iconURL: (userObj.avatarURL as string) || undefined,
         })
         .setTitle(`Removed Contributor`)
         .setDescription(

@@ -61,7 +61,7 @@ const command: Command = {
       const responseEmbed = new EmbedBuilder()
         .setAuthor({
           name: userObj.tag as string,
-          iconURL: userObj.avatarURL as string,
+          iconURL: (userObj.avatarURL as string) || undefined,
         })
         .setTitle(`Added Admin`)
         .setDescription("They'll now be able to perform admin actions!")
@@ -90,7 +90,7 @@ const command: Command = {
       const responseEmbed = new EmbedBuilder()
         .setAuthor({
           name: userObj.tag as string,
-          iconURL: userObj.avatarURL as string,
+          iconURL: (userObj.avatarURL as string) || undefined,
         })
         .setTitle(`Removed Contributor`)
         .setDescription('They can no longer perform admin actions!')
@@ -124,7 +124,7 @@ const command: Command = {
           new EmbedBuilder()
             .setAuthor({
               name: userObj.tag as string,
-              iconURL: userObj.avatarURL as string,
+              iconURL: (userObj.avatarURL as string) || undefined,
             })
             .setFooter({text: FOOTER_MESSAGE})
             .setColor(EMBED_COLOUR as ColorResolvable)
