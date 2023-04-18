@@ -36,14 +36,37 @@ const command: Command = {
     formData.append('image', stream);
 
     // upload image using multipart to akin's API (THANKS MATE)
-    const {data} = await axios.post(LIGHTS_SOLVER, formData, {
+    const response = await axios.post(LIGHTS_SOLVER, formData, {
       headers: {
         headers: formData.getHeaders() as AxiosHeaders,
       },
     });
+    console.log(response.data);
 
+    if (
+      response.data ===
+        'Could not find the board in the image. Make sure there are no color filters and no visual obstructions' ||
+      response.data === 'Board is invalid'
+    ) {
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle(`Lights Puzzle Solver`)
+            .setDescription(
+              `There was an issue parsing the image. Please ensure there are no colour filters or obstructions!`
+            )
+            .setThumbnail(puzzleSprites.lights)
+            .setFooter({text: FOOTER_MESSAGE})
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setTimestamp(),
+        ],
+      });
+      return;
+    }
+
+    // console.log(data);
     // format solver API response, split into array
-    const lightsData = (data as string)
+    const lightsData = (response.data as string)
       .replace('Solution:', '')
       .split('Board:');
     // remove commas, spaces and pipes
