@@ -9,6 +9,7 @@ import display from './display';
 import encounter from './encounter';
 import floors from './floors';
 import keys from './keys';
+import lights from './lights';
 import submissions from './submissions';
 import submit from './submit';
 import tower from './tower';
@@ -23,6 +24,7 @@ const commandList: Command[] = [
   encounter,
   floors,
   keys,
+  lights,
   submissions,
   submit,
   tower,
