@@ -72,6 +72,35 @@ const command: Command = {
       return;
     }
 
+    if (
+      response.data ===
+        'Could not find the board in the image. Make sure there are no color filters and no visual obstructions' ||
+      response.data === 'Board is invalid'
+    ) {
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle(`Lights Puzzle Solver`)
+            .setDescription(
+              `There was an issue parsing the image. Please ensure there are no colour filters or obstructions!`
+            )
+            .setThumbnail(puzzleSprites.lights)
+            .setFooter({text: FOOTER_MESSAGE})
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setTimestamp(),
+        ],
+      });
+
+      logger.error(response.data, {
+        command: interaction.commandName,
+        args: interaction.options.data,
+        user: interaction.user.tag,
+        guild: interaction.guildId,
+      });
+
+      return;
+    }
+
     // format solver API response, split into array
     const lightsData = (response.data as string)
       .replace('Solution:', '')
