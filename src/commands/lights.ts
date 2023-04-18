@@ -25,7 +25,8 @@ const command: Command = {
         .setRequired(true)
     ),
   run: async interaction => {
-    const image = interaction.options.data[0].attachment as Attachment;
+    const image = interaction.options.get('screenshot')
+      ?.attachment as Attachment;
 
     // get data stream from discord attachment link
     const {data: stream} = await axios.get(image.url, {
@@ -34,25 +35,25 @@ const command: Command = {
     // create new form and append image to it
     const formData = new FormData();
     formData.append('image', stream);
+    let response;
+    // try API, catch err and give user feedback
+    try {
+      // upload image using multipart to akin's API (THANKS MATE)
+      response = await axios.post(LIGHTS_SOLVER, formData, {
+        headers: {
+          headers: formData.getHeaders() as AxiosHeaders,
+        },
+      });
+    } catch (err) {
+      const error = err as Error;
 
-    // upload image using multipart to akin's API (THANKS MATE)
-    const response = await axios.post(LIGHTS_SOLVER, formData, {
-      headers: {
-        headers: formData.getHeaders() as AxiosHeaders,
-      },
-    });
-
-    if (
-      response.data ===
-        'Could not find the board in the image. Make sure there are no color filters and no visual obstructions' ||
-      response.data === 'Board is invalid'
-    ) {
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setTitle(`Lights Puzzle Solver`)
             .setDescription(
-              `There was an issue parsing the image. Please ensure there are no colour filters or obstructions!`
+              `There was an issue parsing the image. Please ensure there are no colour filters or obstructions! ` +
+                `If the problem persists, please hang tight. The image recognition process is being actively improved. Thanks for your patience =)`
             )
             .setThumbnail(puzzleSprites.lights)
             .setFooter({text: FOOTER_MESSAGE})
@@ -61,7 +62,7 @@ const command: Command = {
         ],
       });
 
-      logger.error(response.data, {
+      logger.error(error.message, {
         command: interaction.commandName,
         args: interaction.options.data,
         user: interaction.user.tag,
@@ -71,7 +72,6 @@ const command: Command = {
       return;
     }
 
-    // console.log(data);
     // format solver API response, split into array
     const lightsData = (response.data as string)
       .replace('Solution:', '')
