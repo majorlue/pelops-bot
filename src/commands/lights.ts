@@ -8,7 +8,7 @@ import {
 } from 'discord.js';
 import FormData from 'form-data';
 import {config, towerConfig} from '../config';
-import {client} from '../handlers';
+import {client, logger} from '../handlers';
 import {Command} from '../interfaces/command';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR, LIGHTS_SOLVER} = config;
@@ -41,7 +41,6 @@ const command: Command = {
         headers: formData.getHeaders() as AxiosHeaders,
       },
     });
-    console.log(response.data);
 
     if (
       response.data ===
@@ -61,6 +60,14 @@ const command: Command = {
             .setTimestamp(),
         ],
       });
+
+      logger.error(response.data, {
+        command: interaction.commandName,
+        args: interaction.options.data,
+        user: interaction.user.tag,
+        guild: interaction.guildId,
+      });
+
       return;
     }
 
