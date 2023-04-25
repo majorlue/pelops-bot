@@ -1,13 +1,20 @@
 import {ColorResolvable, CommandInteraction, EmbedBuilder} from 'discord.js';
 import {client, dayjs} from '.';
-import {config} from '../config';
+import {config, towerConfig} from '../config';
 import {prisma} from './prisma';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR, BOT_OWNER} = config;
+const {keyFights} = towerConfig;
 
-export const leadMonsters = prisma.encounter
-  .findMany()
-  .then(response => response.map(x => x.leader));
+// retrieve tower encounters, sorting key encounters first, then alphabetically
+export const leadMonsters = prisma.encounter.findMany().then(response => {
+  const leads = response.map(x => x.leader);
+  return [
+    // place key encounters first in array, then the rest
+    ...leads.filter(x => keyFights.includes(x)),
+    ...leads.filter(x => !keyFights.includes(x)),
+  ];
+});
 
 export async function checkPerms(userId: string) {
   const owners = [BOT_OWNER];
