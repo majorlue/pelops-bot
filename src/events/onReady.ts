@@ -7,6 +7,7 @@ import {config, isProd} from '../config';
 import {
   currentHeightsEmbed,
   currentKeysEmbed,
+  currentWeek,
   leadMonsters,
   logger,
   prisma,
@@ -20,6 +21,7 @@ const PRESENCE_TIMER = Number(config.PRESENCE_TIMER) * 1000; // convert s to ms
 const UPDATE_TIMER = Number(config.FLOOR_DISPLAY_TIMER) * 1000; // convert s to ms
 // embed description for embed outputed and updated for /display
 const DISPLAY_CMD_DESC = config.DISPLAY_CMD_DESC;
+const SUBMIT_THRESHOLD = Number(config.SUBMIT_THRESHOLD);
 
 // complete startup tasks, log time taken
 const onReady = async (client: Client) => {
@@ -74,6 +76,97 @@ const onReady = async (client: Client) => {
           type: ActivityType.Listening,
         });
     }
+  });
+
+  // cron schedule to check submissions every two hours on the 30 minute mark
+  schedule('30 */2 * * *', async () => {
+    let start = Date.now();
+    // retrieve all of this week's submissions
+    const submissions = await prisma.floorSubmission.findMany({
+      where: {week: currentWeek()},
+    });
+    // iterate through them, checking if the auto-approve threshold has been reached
+    for (const submission of submissions) {
+      const {theme, week, user, floor, guardians, strays, puzzles, chests} =
+        submission;
+      // retrieve identical submissions
+      const sameSubmissions = await prisma.floorSubmission.findMany({
+        where: {
+          tower: {theme, week},
+          guardians: {hasEvery: guardians},
+          strays: {hasEvery: strays},
+          puzzles: {hasEvery: puzzles},
+          chests: {equals: chests},
+          user: {not: user},
+        },
+      });
+
+      // if there's enough submissions, mark them all as approved and update floor
+      if (sameSubmissions.length > SUBMIT_THRESHOLD) {
+        await prisma.floor.upsert({
+          where: {theme_week_floor: {theme, week, floor}},
+          update: {
+            guardians: {set: guardians},
+            strays: {set: strays},
+            puzzles: {set: puzzles},
+            chests: chests,
+          },
+          create: {
+            tower: {
+              connectOrCreate: {
+                create: {theme, week},
+                where: {theme_week: {theme, week}},
+              },
+            },
+            floor: floor,
+            guardians: guardians,
+            strays: strays,
+            puzzles: puzzles,
+            chests: chests,
+          },
+        });
+        // mark all existing identical submissions as approved
+        await prisma.floorSubmission.updateMany({
+          where: {
+            tower: {theme, week},
+            floor: {equals: floor},
+            guardians: {hasEvery: submission.guardians},
+            strays: {hasEvery: submission.strays},
+            puzzles: {hasEvery: submission.puzzles},
+            chests: {equals: submission.chests},
+            resolved: {not: false},
+          },
+          data: {
+            approved: true,
+            resolved: true,
+          },
+        });
+        // mark remaining unresolved sumissions as denied
+        await prisma.floorSubmission.updateMany({
+          where: {
+            tower: {theme, week},
+            floor: {equals: floor},
+            resolved: {not: false},
+          },
+          data: {
+            approved: false,
+            resolved: true,
+          },
+        });
+        // log the autoupdate
+        logger.info(
+          `Submission threshold met, auto-updated: ${week} ${theme} F${floor}`,
+          {
+            type: 'info',
+          }
+        );
+      }
+    }
+    time = `${Date.now() - start}ms`;
+    logger.info(`Checked ${submissions.length} submissions in ${time}`, {
+      type: 'info',
+      time,
+    });
   });
 
   // cron schedule to update messages every hour

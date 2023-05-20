@@ -1,6 +1,7 @@
-import {CommandInteraction} from 'discord.js';
+import {CommandInteraction, ModalSubmitInteraction} from 'discord.js';
 import {Command} from '../interfaces';
 import admin from './admin';
+import bulk, {bulkModal} from './bulk';
 import chests from './chests';
 import chestskeys from './chestskeys';
 import contributor from './contributor';
@@ -16,6 +17,7 @@ import tower from './tower';
 
 const commandList: Command[] = [
   admin,
+  bulk,
   chests,
   chestskeys,
   display,
@@ -41,6 +43,13 @@ const commandHash: Record<
 > = {};
 for (const command of commandList) commandHash[command.data.name] = command.run;
 
+const modalHash: Record<
+  string,
+  (interaction: ModalSubmitInteraction) => Promise<void>
+> = {
+  bulk: bulkModal,
+};
+
 // elevated commands -- not for base users
 const ownerCmds = ['admin'];
 const adminCmds = ['contributor'];
@@ -53,14 +62,18 @@ const presenceCmds = Object.keys(commandHash)
 
 // commands to offer monster autocomplete suggestions for
 const monsterAutoCmds = ['encounter', 'set', 'submit'];
+// commands to not defer/suggestion etc. instead provide a modal for further input
+const modalCmds = ['bulk'];
 
 export {
   commandList,
   commandHash,
+  modalHash,
   ownerCmds,
   adminCmds,
   contribCmds,
   presenceCmds,
   monsterAutoCmds,
+  modalCmds,
   ephemeralCmds,
 };

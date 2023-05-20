@@ -1,4 +1,9 @@
-import {ColorResolvable, CommandInteraction, EmbedBuilder} from 'discord.js';
+import {
+  ColorResolvable,
+  CommandInteraction,
+  EmbedBuilder,
+  ModalSubmitInteraction,
+} from 'discord.js';
 import {client, currentWeek, dayjs} from '.';
 import {config, towerConfig} from '../config';
 import {prisma} from './prisma';
@@ -240,7 +245,9 @@ export function contribCommandEmbed(interaction: CommandInteraction) {
   };
 }
 
-export function commandErrorEmbed(interaction: CommandInteraction) {
+export function commandErrorEmbed(
+  interaction: CommandInteraction | ModalSubmitInteraction
+) {
   return {
     embeds: [
       new EmbedBuilder()
@@ -250,7 +257,11 @@ export function commandErrorEmbed(interaction: CommandInteraction) {
         })
         .setTitle(`Something Went Wrong )=`)
         .setDescription(
-          `There was an issue trying to execute \`/${interaction.commandName}\`! ` +
+          `There was an issue trying to execute \`/${
+            interaction.isCommand()
+              ? interaction.commandName
+              : interaction.customId
+          }\`! ` +
             `The issue has been logged and will be looked into. Feel free to try again shortly. ` +
             `If the problem persists, please submit a bug report in the Cade Labs Discord (\`/discord\`).`
         )
@@ -261,7 +272,10 @@ export function commandErrorEmbed(interaction: CommandInteraction) {
   };
 }
 
-export function devErrorEmbed(interaction: CommandInteraction, error: Error) {
+export function devErrorEmbed(
+  interaction: CommandInteraction | ModalSubmitInteraction,
+  error: Error
+) {
   return {
     embeds: [
       new EmbedBuilder()
@@ -276,14 +290,25 @@ export function devErrorEmbed(interaction: CommandInteraction, error: Error) {
             name: 'Internal Error Message',
             value: error.message || '\u200b',
           },
-          {
-            name: 'Interaction',
-            value: `\`/${interaction.commandName}\`` || '\u200b',
-          },
-          {
-            name: 'Interaction Options',
-            value: JSON.stringify(interaction.options.data) || '\u200b',
-          },
+          interaction.isCommand()
+            ? {
+                name: 'Interaction',
+                value: `\`/${interaction.commandName}\`` || '\u200b',
+              }
+            : {
+                name: 'Modal',
+                value: `${interaction.customId}`,
+              },
+          interaction.isCommand()
+            ? {
+                name: 'Command Options',
+                value: JSON.stringify(interaction.options.data) || '\u200b',
+              }
+            : {
+                name: 'Modal Options',
+                value:
+                  JSON.stringify(interaction.fields.components) || '\u200b',
+              },
           {
             name: 'Interaction User',
             value: interaction.user.tag || '\u200b',

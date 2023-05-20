@@ -310,124 +310,29 @@ const command: Command = {
         ],
       });
     } else {
-      // if not a cotnributor, retrieve identical submissions
-      const sameSubmissions = await prisma.floorSubmission.findMany({
-        where: {
-          tower: {theme, week},
-          guardians: {hasEvery: submission.guardians},
-          strays: {hasEvery: submission.strays},
-          puzzles: {hasEvery: submission.puzzles},
-          chests: {equals: submission.chests},
-          user: {not: user},
-        },
+      // response message if they're not a contributor, notify of threshold
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: `Tower Floor Submission`,
+              iconURL: interaction.user.avatarURL() || undefined,
+            })
+            .setTitle(`${theme} F${floor}: Pending Approval`)
+            .setDescription(
+              `If ${SUBMIT_THRESHOLD} identical submissions are received, they will all be automatically approved. Thanks for contributing <3`
+            )
+            .setFields(...embedFields)
+            .setThumbnail(
+              towerSprites[
+                (theme as 'Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis')
+              ]
+            )
+            .setFooter({text: FOOTER_MESSAGE})
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setTimestamp(),
+        ],
       });
-      // if there's enough submissions, mark them all as approved and update floor
-      if (sameSubmissions.length > SUBMIT_THRESHOLD) {
-        await prisma.floor.upsert({
-          where: {theme_week_floor: {theme, week, floor}},
-          update: {
-            guardians: {set: guardians},
-            strays: {set: strays},
-            puzzles: {set: puzzles},
-            chests: chests,
-          },
-          create: {
-            tower: {
-              connectOrCreate: {
-                create: {theme, week},
-                where: {theme_week: {theme, week}},
-              },
-            },
-            floor: floor,
-            guardians: guardians,
-            strays: strays,
-            puzzles: puzzles,
-            chests: chests,
-          },
-        });
-        // mark all existing identical submissions as approved
-        await prisma.floorSubmission.updateMany({
-          where: {
-            tower: {theme, week},
-            guardians: {hasEvery: submission.guardians},
-            strays: {hasEvery: submission.strays},
-            puzzles: {hasEvery: submission.puzzles},
-            chests: {equals: submission.chests},
-            resolved: {not: false},
-          },
-          data: {
-            approved: true,
-            resolved: true,
-          },
-        });
-        // mark remaining unresolved sumissions as denied
-        await prisma.floorSubmission.updateMany({
-          where: {
-            tower: {theme, week},
-            resolved: {not: false},
-          },
-          data: {
-            approved: false,
-            resolved: true,
-          },
-        });
-        // log the autoupdate
-        logger.info(
-          `Submission threshold met, auto-updated: ${week} ${theme} F${floor}`,
-          {
-            command: command.data.name,
-            type: 'info',
-          }
-        );
-
-        // response message if enough identical contributions
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setAuthor({
-                name: `Tower Floor Submission`,
-                iconURL: interaction.user.avatarURL() || undefined,
-              })
-              .setTitle(`${theme} F${floor}: Updated!`)
-              .setDescription(
-                `Submission approved as there are ${SUBMIT_THRESHOLD} identical submissions. Thanks for contributing <3`
-              )
-              .setFields(...embedFields)
-              .setThumbnail(
-                towerSprites[
-                  (theme as 'Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis')
-                ]
-              )
-              .setFooter({text: FOOTER_MESSAGE})
-              .setColor(EMBED_COLOUR as ColorResolvable)
-              .setTimestamp(),
-          ],
-        });
-      } else {
-        // response message if they're not a contributor, notify of threshold
-        await interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setAuthor({
-                name: `Tower Floor Submission`,
-                iconURL: interaction.user.avatarURL() || undefined,
-              })
-              .setTitle(`${theme} F${floor}: Pending Approval`)
-              .setDescription(
-                `If ${SUBMIT_THRESHOLD} identical submissions are received, they will all be automatically approved. Thanks for contributing <3`
-              )
-              .setFields(...embedFields)
-              .setThumbnail(
-                towerSprites[
-                  (theme as 'Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis')
-                ]
-              )
-              .setFooter({text: FOOTER_MESSAGE})
-              .setColor(EMBED_COLOUR as ColorResolvable)
-              .setTimestamp(),
-          ],
-        });
-      }
     }
   },
 };

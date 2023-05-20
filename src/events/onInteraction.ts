@@ -5,6 +5,8 @@ import {
   commandHash,
   contribCmds,
   ephemeralCmds,
+  modalCmds,
+  modalHash,
   monsterAutoCmds,
   ownerCmds,
 } from '../commands';
@@ -43,19 +45,59 @@ const onInteraction = async (interaction: Interaction) => {
       );
     }
     // other automcomplete fields go here
+  } else if (interaction.isModalSubmit()) {
+    try {
+      // we do a little instrumentation
+      const start = Date.now();
+      const {customId: modalId} = interaction;
+
+      await interaction.deferReply({
+        ephemeral: true,
+      });
+
+      await modalHash[modalId](interaction);
+
+      const time = `${Date.now() - start}ms`;
+      logger.info(`Handled modal ${modalId} in ${time}`, {
+        time,
+        modalId,
+        type: 'modal',
+        user: interaction.user.tag,
+      });
+      return;
+    } catch (err) {
+      // typecasting for safety. we know it's a type of error
+      const error = err as Error;
+      // TODO: handle other error types explicitly. main ones are prisma and discordjs
+
+      // edit interaction response to notify players error happened and log error
+      await interaction.editReply(commandErrorEmbed(interaction));
+
+      // log error with level 'error' and include additional context in log obj
+      logger.error(error.message, {
+        modal: interaction.customId,
+        args: interaction.fields.components,
+        user: interaction.user.tag,
+        guild: interaction.guildId,
+        ...error,
+      });
+    }
   }
 
   // verify intertaction type here and run the approriate function
-  if (interaction.isCommand()) {
+  else if (interaction.isCommand()) {
     // wrap ALL commands for error handling -- gives user feedback if there's an issue
     try {
       // we do a little instrumentation
       const start = Date.now();
-      // Discord requires acknowledgement within 3 seconds, so just defer reply for now
-      await interaction.deferReply({
-        ephemeral: ephemeralCmds.includes(interaction.commandName),
-      });
       const {commandName: command, user} = interaction;
+
+      // Discord requires acknowledgement within 3 seconds, so just defer reply for non-modal cmds
+      // Modals require a response with the modal itself, then a (potentially deferred) response to modal submission
+      if (!modalCmds.includes(command))
+        await interaction.deferReply({
+          ephemeral: ephemeralCmds.includes(command),
+        });
 
       // check if user has required permissions for elevated commands
       if (ownerCmds.includes(command) && !(await checkPerms(user.id)).owner) {
@@ -88,12 +130,9 @@ const onInteraction = async (interaction: Interaction) => {
       // TODO: handle other error types explicitly. main ones are prisma and discordjs
 
       // edit interaction response to notify players error happened and log error
-      await interaction.editReply(commandErrorEmbed(interaction));
-
-      // send discord message to error channel for more visibility
-      const errChannel = await client.channels.fetch(ERROR_CHANNEL);
-      if (errChannel && errChannel.type === ChannelType.GuildText)
-        errChannel.send(devErrorEmbed(interaction, error));
+      if (interaction.replied)
+        await interaction.editReply(commandErrorEmbed(interaction));
+      else await interaction.reply(commandErrorEmbed(interaction));
 
       // log error with level 'error' and include additional context in log obj
       logger.error(error.message, {
