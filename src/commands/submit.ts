@@ -414,7 +414,7 @@ const command: Command = {
               })
               .setTitle(`${theme} F${floor}: Pending Approval`)
               .setDescription(
-                `If ${SUBMIT_THRESHOLD} identical submissions are recieved, they will all be automatically approved. Thanks for contributing <3`
+                `If ${SUBMIT_THRESHOLD} identical submissions are received, they will all be automatically approved. Thanks for contributing <3`
               )
               .setFields(...embedFields)
               .setThumbnail(
