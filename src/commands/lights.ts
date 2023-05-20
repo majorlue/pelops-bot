@@ -52,8 +52,9 @@ const command: Command = {
           new EmbedBuilder()
             .setTitle(`Lights Puzzle Solver`)
             .setDescription(
-              `There was an issue parsing the image. Please ensure there are no colour filters or obstructions! ` +
-                `If the problem persists, please hang tight. The image recognition process is being actively improved. Thanks for your patience =)`
+              `There was an issue parsing the image. Please ensure a full-screen (uncropped) image is used and there are no colour filters or obstructions! ` +
+                `If the problem persists, please consider reporting the issue in the Discord. Your patience is much appreciated <3` +
+                `\n\nAs an alternative, this website may be considered: <http://perfectweb.org/ddo/solver/vale_puzzle.html>`
             )
             .setThumbnail(puzzleSprites.lights)
             .setFooter({text: FOOTER_MESSAGE})
@@ -72,17 +73,34 @@ const command: Command = {
       return;
     }
 
-    if (
-      response.data ===
-        'Could not find the board in the image. Make sure there are no color filters and no visual obstructions' ||
-      response.data === 'Board is invalid'
-    ) {
+    if (response.data.includes('Board could not be solved')) {
+      // handle successful board state read, but unsuccessful solve
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setTitle(`Lights Puzzle Solver`)
             .setDescription(
-              `There was an issue parsing the image. Please ensure there are no colour filters or obstructions!`
+              `This board could not be solved. 5x5 boards are potentially unsolveable. ` +
+                `If this is an error, please consider reporting it. Your patience is much appreciated <3` +
+                `\n\nAs an alternative, this website may be considered: <http://perfectweb.org/ddo/solver/vale_puzzle.html>`
+            )
+            .setThumbnail(puzzleSprites.lights)
+            .setFooter({text: FOOTER_MESSAGE})
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setTimestamp(),
+        ],
+      });
+
+      return;
+    } else if (!response.data.includes('Solution:')) {
+      // handle unsuccessful board state read
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle(`Lights Puzzle Solver`)
+            .setDescription(
+              `There was an issue parsing the image. Please ensure a full-screen (uncropped) image is used and there are no colour filters or obstructions!` +
+                `\n\nAs an alternative, this website may be considered: <http://perfectweb.org/ddo/solver/vale_puzzle.html>`
             )
             .setThumbnail(puzzleSprites.lights)
             .setFooter({text: FOOTER_MESSAGE})

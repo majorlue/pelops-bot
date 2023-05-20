@@ -14,7 +14,7 @@ const envVars: Record<string, string | number | undefined> = {
   // Bot Commands
   EMBED_COLOUR: process.env.EMBED_COLOUR || 'DarkPurple',
   FOOTER_MESSAGE:
-    `Check out /lights for a lights puzzle solver!\n` +
+    `Bug reports and suggestions welcomed in Discord!\n` +
     `/discord | v${version} | made by Major#1005`,
   SUBMIT_THRESHOLD: process.env.SUBMIT_THRESHOLD || 3,
   IMAGE_PATH: 'https://orna.guide/static/orna/img/',
