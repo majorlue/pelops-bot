@@ -114,7 +114,6 @@ const onReady = async (client: Client) => {
                         embeds: [embed.setDescription(DISPLAY_CMD_DESC)],
                       });
                     });
-
                     break;
                 }
             });
@@ -124,6 +123,9 @@ const onReady = async (client: Client) => {
         // discord API error codes
         // https://github.com/meew0/discord-api-docs-1/blob/master/docs/topics/RESPONSE_CODES.md#json-error-response
         switch (discordErr.code) {
+          case 10003: // Unknown channel
+            prisma.persistentMessage.delete({where: {messageId}});
+            break;
           case 10008: // Unknown message
             prisma.persistentMessage.delete({where: {messageId}});
             break;
