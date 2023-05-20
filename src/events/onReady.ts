@@ -103,7 +103,7 @@ const onReady = async (client: Client) => {
                     currentHeightsEmbed().setDescription(DISPLAY_CMD_DESC),
                   ],
                 });
-                return;
+                break;
               // lively version of /keys
               case 'curr_keys':
                 await discordMsg.edit({
@@ -111,6 +111,7 @@ const onReady = async (client: Client) => {
                     (await currentKeysEmbed()).setDescription(DISPLAY_CMD_DESC),
                   ],
                 });
+                break;
             }
         }
       } catch (err) {
