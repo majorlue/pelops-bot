@@ -18,7 +18,7 @@ const envVars: Record<string, string | number | undefined> = {
     `/discord | v${version} | made by Major#1005`,
   DISPLAY_CMD_DESC:
     `This message is updated hourly.` +
-    `\n\nPlease consider contributing Tower data to Pelops via \`/submit\`.` +
+    `\n\nPlease consider contributing Tower data to Pelops via \`/submit\`. ` +
     `This greatly helps other players with their Tower adventures. Thanks, traveler!`,
   SUBMIT_THRESHOLD: process.env.SUBMIT_THRESHOLD || 3,
   IMAGE_PATH: 'https://orna.guide/static/orna/img/',
