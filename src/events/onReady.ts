@@ -89,7 +89,7 @@ const onReady = async (client: Client) => {
             await discordMsg.edit({
               embeds: [
                 currentHeightsEmbed().setDescription(
-                  `Message updates as heights change`
+                  `This message is updated every hour.`
                 ),
               ],
             });
