@@ -4,11 +4,13 @@ Heya, this is the repo for the discord bot Pelops. The purpose of this project i
 
 ### Core Features:
 
-✅ `/floors`: displays the current height for each Tower theme<br>
-✅ `/encounter`: displays Tower fight information (floor guardians, strays)<br>
 ✅ `/submit`: allows **community contribution** for the current week's Tower layout<br>
-✅ `/tower`: displays the specified theme's current layout, including floor guardians, stray monsters, puzzle types/difficulty and chests.<br>
-✅ `/keys`: displays the current week's Tower floors with key fights<br>
+✅ `/floors`: displays the current height for each Tower theme (visible to command user only)<br>
+✅ `/tower`: displays the specified theme's current layout, including floor guardians, stray monsters, puzzle types/difficulty and chests (visible to command user only)<br>
+✅ `/keys`: displays the current week's Tower floors with key fights (visible to command user only)<br>
+✅ `/display`: displays a message that is continuously updated (curr hourly). supports `floors`, `keys` (visible to **ALL** users, but requires mod permissions in that server)<br>
+✅ `/chestkeys`: displays the current week's Tower floors with either chests or key fights (visible to command user only)<br>
+✅ `/encounter`: displays Tower fight information -- floor guardians, strays (visible to command user only)<br>
 
 ### Discord
 
