@@ -7,7 +7,7 @@ import {config, towerConfig} from '../config';
 import {client, currentWeek, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
-const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
+const {FOOTER_MESSAGE, EMBED_COLOUR, CONTRIBUTION_REQUEST_MSG} = config;
 const {themes, keyFights, towerSprites} = towerConfig;
 const themeOpts = themes.map(x => ({name: x, value: x}));
 
@@ -123,7 +123,12 @@ const command: Command = {
           .setColor(EMBED_COLOUR as ColorResolvable)
       );
 
+    // add contribution request, footer message and timestamp to final embed. no need to display on all
     responseEmbeds[responseEmbeds.length - 1]
+      .addFields({
+        name: `\u200b`,
+        value: CONTRIBUTION_REQUEST_MSG,
+      })
       .setFooter({text: FOOTER_MESSAGE})
       .setTimestamp();
 

@@ -8,7 +8,7 @@ import {config, towerConfig} from '../config';
 import {client, currentWeek, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
-const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
+const {FOOTER_MESSAGE, EMBED_COLOUR, CONTRIBUTION_REQUEST_MSG} = config;
 const {maxHeight, minHeight, themes, towerSprites} = towerConfig;
 const themeOpts = themes.map(x => ({name: x, value: x}));
 
@@ -52,7 +52,10 @@ const command: Command = {
             .setAuthor({
               name: `${theme} | Week of ${week}`,
             })
-            .setDescription(`No Tower info found for ${theme} ${week}`)
+            .setDescription(
+              `No Tower info found for ${theme} ${week}. We're waiting on user contributions for the week.\n\n` +
+                CONTRIBUTION_REQUEST_MSG
+            )
             .setThumbnail(towerSprites[theme])
             .setColor(EMBED_COLOUR as ColorResolvable)
             .setFooter({text: FOOTER_MESSAGE})

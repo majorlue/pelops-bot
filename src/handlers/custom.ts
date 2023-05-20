@@ -3,7 +3,8 @@ import {client, currentWeek, dayjs} from '.';
 import {config, towerConfig} from '../config';
 import {prisma} from './prisma';
 
-const {FOOTER_MESSAGE, EMBED_COLOUR, BOT_OWNER} = config;
+const {FOOTER_MESSAGE, EMBED_COLOUR, BOT_OWNER, CONTRIBUTION_REQUEST_MSG} =
+  config;
 const {themes, keyFights} = towerConfig;
 
 // retrieve tower encounters, sorting key encounters first, then alphabetically
@@ -86,6 +87,7 @@ export function currentHeightsEmbed() {
   // build embed for the command
   return new EmbedBuilder()
     .setTitle('Floor Heights - Towers of Olympia')
+    .setDescription(CONTRIBUTION_REQUEST_MSG)
     .addFields(
       {
         // second header text for current UTC display and insert heights code block
@@ -141,6 +143,7 @@ export async function currentKeysEmbed() {
       name: `Week of ${week}`,
     })
     .setTitle(`Tower Key Fights`)
+    .setDescription(CONTRIBUTION_REQUEST_MSG)
     .addFields(fields)
     .setThumbnail(
       'https://orna.guide/static/orna/img/monsters/tower_guardian.png'
