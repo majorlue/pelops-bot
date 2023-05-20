@@ -1,10 +1,10 @@
 import {ColorResolvable, CommandInteraction, EmbedBuilder} from 'discord.js';
-import {client, dayjs} from '.';
+import {client, currentWeek, dayjs} from '.';
 import {config, towerConfig} from '../config';
 import {prisma} from './prisma';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR, BOT_OWNER} = config;
-const {keyFights} = towerConfig;
+const {themes, keyFights} = towerConfig;
 
 // retrieve tower encounters, sorting key encounters first, then alphabetically
 export const leadMonsters = prisma.encounter.findMany().then(response => {
@@ -96,6 +96,54 @@ export function currentHeightsEmbed() {
         name: '\u200b',
         value: `Towers last grew <t:${floorsLastAdded()}:R>, and will grow again <t:${floorsGrowAt()}:R>`,
       }
+    )
+    .setFooter({text: FOOTER_MESSAGE})
+    .setColor(EMBED_COLOUR as ColorResolvable)
+    .setTimestamp();
+}
+
+export async function currentKeysEmbed() {
+  const week = currentWeek();
+  const keyFormat: Record<string, string> = {};
+  for (const theme of themes) keyFormat[theme] = '\u200b';
+
+  // db query for current week floors with key fights as either guardian or stray
+  const keyFloors = await prisma.floor.findMany({
+    where: {
+      week: week,
+      OR: [{guardians: {hasSome: keyFights}}, {strays: {hasSome: keyFights}}],
+    },
+  });
+
+  // sort key floors in ascending order
+  keyFloors.sort((a, b) => a.floor - b.floor);
+
+  for (const floor of keyFloors) {
+    const guardianCount = floor.guardians.filter(x => keyFights.includes(x));
+    const strayCount = floor.strays.filter(x => keyFights.includes(x));
+
+    // add display text for each theme's floors
+    keyFormat[floor.theme] +=
+      `**F${floor.floor}**:` +
+      (guardianCount.length > 0 ? ` ${guardianCount.length} guardian` : '') +
+      (strayCount.length > 0 ? ` ${strayCount.length} stray` : '') +
+      '\n';
+  }
+
+  // create embed fields for each theme
+  const fields = [];
+  for (const theme in keyFormat)
+    fields.push({name: theme, value: keyFormat[theme]});
+
+  // return embed for the command
+  return new EmbedBuilder()
+    .setAuthor({
+      name: `Week of ${week}`,
+    })
+    .setTitle(`Tower Key Fights`)
+    .addFields(fields)
+    .setThumbnail(
+      'https://orna.guide/static/orna/img/monsters/tower_guardian.png'
     )
     .setFooter({text: FOOTER_MESSAGE})
     .setColor(EMBED_COLOUR as ColorResolvable)

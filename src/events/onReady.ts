@@ -4,7 +4,13 @@ import {ActivityType, ChannelType, Client} from 'discord.js';
 import {schedule} from 'node-cron';
 import {commandHash, commandList, presenceCmds} from '../commands';
 import {config, isProd} from '../config';
-import {currentHeightsEmbed, leadMonsters, logger, prisma} from '../handlers';
+import {
+  currentHeightsEmbed,
+  currentKeysEmbed,
+  leadMonsters,
+  logger,
+  prisma,
+} from '../handlers';
 
 // bot client token, for use with discord API
 const BOT_TOKEN = config.BOT_TOKEN;
@@ -12,6 +18,8 @@ const BOT_TOKEN = config.BOT_TOKEN;
 const PRESENCE_TIMER = Number(config.PRESENCE_TIMER) * 1000; // convert s to ms
 // interval to update floor dislay message
 const UPDATE_TIMER = Number(config.FLOOR_DISPLAY_TIMER) * 1000; // convert s to ms
+// embed description for embed outputed and updated for /display
+const DISPLAY_CMD_DESC = config.DISPLAY_CMD_DESC;
 
 // complete startup tasks, log time taken
 const onReady = async (client: Client) => {
@@ -70,8 +78,9 @@ const onReady = async (client: Client) => {
 
   // cron schedule to update messages every hour
   schedule('0 * * * *', async () => {
+    // persistent messages types are 'curr_floors' and 'curr_keys'
     const persistentMessages = await prisma.persistentMessage.findMany({
-      where: {type: {equals: 'curr_floors'}, production: isProd},
+      where: {production: isProd},
     });
 
     // iterate through each one
@@ -84,15 +93,25 @@ const onReady = async (client: Client) => {
         if (messageChannel && messageChannel.type === ChannelType.GuildText) {
           // try fetching the message, may throw '10008', message doesn't exist (deleted?)
           const discordMsg = await messageChannel.messages.fetch(messageId);
-          // if the message exists, then update it with the new heights
+          // if the message exists and is accessible, then update it depending on the message type
           if (discordMsg)
-            await discordMsg.edit({
-              embeds: [
-                currentHeightsEmbed().setDescription(
-                  `This message is updated every hour.`
-                ),
-              ],
-            });
+            switch (message.type) {
+              // lively version of /floors
+              case 'curr_floors':
+                await discordMsg.edit({
+                  embeds: [
+                    currentHeightsEmbed().setDescription(DISPLAY_CMD_DESC),
+                  ],
+                });
+                return;
+              // lively version of /keys
+              case 'curr_keys':
+                await discordMsg.edit({
+                  embeds: [
+                    (await currentKeysEmbed()).setDescription(DISPLAY_CMD_DESC),
+                  ],
+                });
+            }
         }
       } catch (err) {
         const discordErr = err as DiscordAPIError;
