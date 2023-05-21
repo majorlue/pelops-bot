@@ -10,7 +10,13 @@ import {
   TextInputStyle,
 } from 'discord.js';
 import {config, towerConfig} from '../config';
-import {checkPerms, currentWeek, leadMonsters, prisma} from '../handlers';
+import {
+  checkPerms,
+  currentWeek,
+  leadMonsters,
+  logger,
+  prisma,
+} from '../handlers';
 import {Command} from '../interfaces';
 
 const {FOOTER_MESSAGE, EMBED_COLOUR, SUBMIT_THRESHOLD} = config;
@@ -89,7 +95,6 @@ const command: Command = {
           .setCustomId(theme)
           .setLabel(`${theme}: Week of ${week}`)
           .setStyle(TextInputStyle.Paragraph)
-          .setMinLength(1)
           .setMaxLength(4000)
           .setPlaceholder(
             '1:ODIN,FROST TROLL||2|lock\n' +
@@ -281,6 +286,12 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
   }
 
   await prisma.$transaction(prismaTransactions);
+  logger.info(
+    `${interaction.user} bulk submitted ${towerFloors.length} submissions for ${week} ${theme}`,
+    {
+      type: 'info',
+    }
+  );
 
   await interaction.editReply({
     embeds: [
@@ -289,15 +300,14 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
           name: `Tower Floor Submission`,
           iconURL: interaction.user.avatarURL() || undefined,
         })
-        .setTitle(
-          `${theme} Week of ${week}: ${prismaTransactions.length} submissions`
-        )
-        .setDescription(
-          isContributor
-            ? `Submission approved as you are an approved contributor. Thanks for helping out <3`
-            : `If ${SUBMIT_THRESHOLD} identical submissions are received, they will all be automatically approved. Thanks for contributing <3`
-        )
-        .addFields({name: 'Submission', value: '```' + rawUserInput + '```'})
+        .setTitle(`${theme} Week of ${week}: ${towerFloors.length} submissions`)
+        .setDescription('**Submission**\n' + '```' + rawUserInput + '```')
+        .addFields({
+          name: '\u200b',
+          value: isContributor
+            ? `Submission accepted as you are an approved contributor. Thanks for helping out <3`
+            : `If ${SUBMIT_THRESHOLD} identical submissions are received, they will all be automatically approved. Thanks for contributing <3`,
+        })
         .setThumbnail(
           towerSprites[
             (theme as 'Selene', 'Eos', 'Oceanus', 'Prometheus', 'Themis')
