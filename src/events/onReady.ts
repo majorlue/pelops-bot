@@ -78,8 +78,8 @@ const onReady = async (client: Client) => {
     }
   });
 
-  // cron schedule to check submissions every two hours on the 30 minute mark
-  schedule('30 */2 * * *', async () => {
+  // cron schedule to check submissions every hour on the 30 minute mark
+  schedule('30 * * * *', async () => {
     let start = Date.now();
     // retrieve all of this week's submissions
     const submissions = await prisma.floorSubmission.findMany({
