@@ -162,15 +162,19 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
         });
         return;
       } else if (results.length > 1) {
-        await interaction.editReply({
-          embeds: [
-            invalidInputEmbed(interaction, theme).setDescription(
-              `There was an error parsing F${floor}'s guardians. Input '${guardian}' matches multiple encounters.`
-            ),
-          ],
-        });
-
-        return;
+        // if multiple matches, then check for exact match
+        const exactMatch = results.filter(x => x === guardian);
+        if (exactMatch.length === 1) parsedFloor.guardians.push(exactMatch[0]);
+        else {
+          await interaction.editReply({
+            embeds: [
+              invalidInputEmbed(interaction, theme).setDescription(
+                `There was an error parsing F${floor}'s guardians. Input '${guardian}' matches multiple encounters.`
+              ),
+            ],
+          });
+          return;
+        }
       } else parsedFloor.guardians.push(results[0]);
     }
     for (const stray of strays) {
@@ -186,15 +190,19 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
 
         return;
       } else if (results.length > 1) {
-        await interaction.editReply({
-          embeds: [
-            invalidInputEmbed(interaction, theme).setDescription(
-              `There was an error parsing F${floor}'s strays. Input '${stray}' matches multiple encounters.`
-            ),
-          ],
-        });
-
-        return;
+        // if multiple matches, then check for exact match
+        const exactMatch = results.filter(x => x === stray);
+        if (exactMatch.length === 1) parsedFloor.strays.push(exactMatch[0]);
+        else {
+          await interaction.editReply({
+            embeds: [
+              invalidInputEmbed(interaction, theme).setDescription(
+                `There was an error parsing F${floor}'s strays. Input '${stray}' matches multiple encounters.`
+              ),
+            ],
+          });
+          return;
+        }
       } else parsedFloor.strays.push(results[0]);
     }
     for (const puzzle of puzzles) {
@@ -209,31 +217,38 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
         });
         return;
       } else if (results.length > 1) {
-        await interaction.editReply({
-          embeds: [
-            invalidInputEmbed(interaction, theme).setDescription(
-              `There was an error parsing F${floor}'s puzzles. Input '${puzzle}' matches multiple puzzles.`
-            ),
-          ],
-        });
-        return;
+        // if multiple matches, then check for exact match
+        const exactMatch = results.filter(x => x === puzzle);
+        if (exactMatch.length === 1) parsedFloor.puzzles.push(exactMatch[0]);
+        else {
+          await interaction.editReply({
+            embeds: [
+              invalidInputEmbed(interaction, theme).setDescription(
+                `There was an error parsing F${floor}'s puzzles. Input '${puzzle}' matches multiple puzzles.`
+              ),
+            ],
+          });
+          return;
+        }
       } else parsedFloor.puzzles.push(results[0]);
     }
 
     if (isContributor) {
-      prisma.floor.upsert({
-        where: {theme_week_floor: {theme, week, floor}},
-        update: parsedFloor,
-        create: {
-          tower: {
-            connectOrCreate: {
-              create: {theme, week},
-              where: {theme_week: {theme, week}},
+      prismaTransactions.push(
+        prisma.floor.upsert({
+          where: {theme_week_floor: {theme, week, floor}},
+          update: parsedFloor,
+          create: {
+            tower: {
+              connectOrCreate: {
+                create: {theme, week},
+                where: {theme_week: {theme, week}},
+              },
             },
+            ...parsedFloor,
           },
-          ...parsedFloor,
-        },
-      });
+        })
+      );
 
       prismaTransactions.push(
         prisma.floorSubmission.updateMany({
@@ -248,18 +263,20 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
         })
       );
     } else {
-      prisma.floorSubmission.create({
-        data: {
-          tower: {
-            connectOrCreate: {
-              create: {theme, week},
-              where: {theme_week: {theme, week}},
+      prismaTransactions.push(
+        prisma.floorSubmission.create({
+          data: {
+            tower: {
+              connectOrCreate: {
+                create: {theme, week},
+                where: {theme_week: {theme, week}},
+              },
             },
+            user: interaction.user.id,
+            ...parsedFloor,
           },
-          user: interaction.user.id,
-          ...parsedFloor,
-        },
-      });
+        })
+      );
     }
   }
 
