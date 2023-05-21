@@ -83,7 +83,7 @@ const onReady = async (client: Client) => {
     let start = Date.now();
     // retrieve all of this week's submissions
     const submissions = await prisma.floorSubmission.findMany({
-      where: {week: currentWeek()},
+      where: {week: currentWeek(), resolved: false},
     });
     // iterate through them, checking if the auto-approve threshold has been reached
     for (const submission of submissions) {
@@ -103,7 +103,7 @@ const onReady = async (client: Client) => {
 
       // if there's enough submissions, mark them all as approved and update floor
       if (sameSubmissions.length > SUBMIT_THRESHOLD) {
-        await prisma.floor.upsert({
+        prisma.floor.upsert({
           where: {theme_week_floor: {theme, week, floor}},
           update: {
             guardians: {set: guardians},
@@ -126,7 +126,7 @@ const onReady = async (client: Client) => {
           },
         });
         // mark all existing identical submissions as approved
-        await prisma.floorSubmission.updateMany({
+        prisma.floorSubmission.updateMany({
           where: {
             tower: {theme, week},
             floor: {equals: floor},
@@ -142,7 +142,7 @@ const onReady = async (client: Client) => {
           },
         });
         // mark remaining unresolved sumissions as denied
-        await prisma.floorSubmission.updateMany({
+        prisma.floorSubmission.updateMany({
           where: {
             tower: {theme, week},
             floor: {equals: floor},
