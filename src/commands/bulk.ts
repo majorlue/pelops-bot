@@ -297,10 +297,10 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
     embeds: [
       new EmbedBuilder()
         .setAuthor({
-          name: `Tower Floor Submission`,
+          name: `Bulk Floor Submission`,
           iconURL: interaction.user.avatarURL() || undefined,
         })
-        .setTitle(`${theme} Week of ${week}: ${towerFloors.length} submissions`)
+        .setTitle(`${theme} | Week of ${week}: ${towerFloors.length} floors`)
         .setDescription('**Submission**\n' + '```' + rawUserInput + '```')
         .addFields({
           name: '\u200b',
