@@ -156,7 +156,9 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
     };
 
     for (const guardian of guardians) {
-      const results = (await leadMonsters).filter(x => x.includes(guardian));
+      const results = (await leadMonsters).filter(x =>
+        x.toLowerCase().includes(guardian.toLowerCase())
+      );
       if (results.length === 0) {
         await interaction.editReply({
           embeds: [
@@ -168,7 +170,9 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
         return;
       } else if (results.length > 1) {
         // if multiple matches, then check for exact match
-        const exactMatch = results.filter(x => x === guardian);
+        const exactMatch = results.filter(
+          x => x.toLowerCase() === guardian.toLowerCase()
+        );
         if (exactMatch.length === 1) parsedFloor.guardians.push(exactMatch[0]);
         else {
           await interaction.editReply({
@@ -183,7 +187,9 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
       } else parsedFloor.guardians.push(results[0]);
     }
     for (const stray of strays) {
-      const results = (await leadMonsters).filter(x => x.includes(stray));
+      const results = (await leadMonsters).filter(x =>
+        x.toLowerCase().includes(stray.toLowerCase())
+      );
       if (results.length === 0) {
         await interaction.editReply({
           embeds: [
@@ -196,7 +202,9 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
         return;
       } else if (results.length > 1) {
         // if multiple matches, then check for exact match
-        const exactMatch = results.filter(x => x === stray);
+        const exactMatch = results.filter(
+          x => x.toLowerCase() === stray.toLowerCase()
+        );
         if (exactMatch.length === 1) parsedFloor.strays.push(exactMatch[0]);
         else {
           await interaction.editReply({
@@ -211,7 +219,9 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
       } else parsedFloor.strays.push(results[0]);
     }
     for (const puzzle of puzzles) {
-      const results = puzzleTypes.filter(x => x.includes(puzzle));
+      const results = puzzleTypes.filter(x =>
+        x.toLowerCase().includes(puzzle.toLowerCase())
+      );
       if (results.length === 0) {
         await interaction.editReply({
           embeds: [
@@ -223,7 +233,9 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
         return;
       } else if (results.length > 1) {
         // if multiple matches, then check for exact match
-        const exactMatch = results.filter(x => x === puzzle);
+        const exactMatch = results.filter(
+          x => x.toLowerCase() === puzzle.toLowerCase()
+        );
         if (exactMatch.length === 1) parsedFloor.puzzles.push(exactMatch[0]);
         else {
           await interaction.editReply({
