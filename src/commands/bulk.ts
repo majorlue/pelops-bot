@@ -287,7 +287,7 @@ export async function bulkModal(interaction: ModalSubmitInteraction) {
 
   await prisma.$transaction(prismaTransactions);
   logger.info(
-    `${interaction.user} bulk submitted ${towerFloors.length} submissions for ${week} ${theme}`,
+    `${interaction.user.tag} bulk submitted ${towerFloors.length} submissions for ${week} ${theme}`,
     {
       type: 'info',
     }
