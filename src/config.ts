@@ -18,13 +18,13 @@ const envVars: Record<string, string | number | undefined> = {
     `/discord | v${version} | made by Major#1005`,
   CONTRIBUTION_REQUEST_MSG:
     `\n\nIf you'd like to contribute frequently (or already have!), feel free to contact Major#1005 to verify you as an official contributor. ` +
-    `This automatically updates Pelop's information for yourself and others, without delay. ` +
-    `This isn't a requirement, though, you can still contribute normally via \`/submit\`. Thanks, traveler! Safe journey <3`,
+    `This automatically updates Pelops' information for yourself and others, without delay. ` +
+    `This isn't required, though. You can still contribute normally via \`/submit\` or \`/bulk\`. Thanks!`,
   DISPLAY_CMD_DESC:
     `This message is updated hourly.` +
     `\n\nIf you'd like to contribute frequently (or already have!), feel free to contact Major#1005 to verify you as an official contributor. ` +
-    `This automatically updates Pelop's information for yourself and others, without delay. ` +
-    `This isn't a requirement, though, you can still contribute normally via \`/submit\`. Thanks, traveler! Safe journey <3`,
+    `This automatically updates Pelops' information for yourself and others, without delay. ` +
+    `This isn't required, though. You can still contribute normally via \`/submit\` or \`/bulk\`. Thanks!`,
   SUBMIT_THRESHOLD: process.env.SUBMIT_THRESHOLD || 3,
   IMAGE_PATH: 'https://orna.guide/static/orna/img/',
   CODEX_PREFIX: 'https://playorna.com',
