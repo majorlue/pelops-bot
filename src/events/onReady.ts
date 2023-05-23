@@ -182,62 +182,61 @@ const onReady = async (client: Client) => {
     // iterate through each one
     for (const message of persistentMessages) {
       const {messageId, channelId} = message;
-      // retrieve the message's channel first
-      client.channels
-        .fetch(channelId)
-        .then(channel => {
-          if (channel && channel.type === ChannelType.GuildText)
-            // if the channel exists, and it's a guild text channel, then retrieve the message by message id
-            channel.messages.fetch(messageId).then(discordMsg => {
-              // if the message exists, update the message based on the type of persistent message
-              if (discordMsg)
-                switch (message.type) {
-                  // lively version of /floors
-                  case 'curr_floors':
-                    discordMsg.edit({
-                      embeds: [
-                        currentHeightsEmbed().setDescription(DISPLAY_CMD_DESC),
-                      ],
-                    });
-                    break;
-                  // lively version of /keys
-                  case 'curr_keys':
-                    currentKeysEmbed().then(embed => {
-                      discordMsg.edit({
-                        embeds: [embed.setDescription(DISPLAY_CMD_DESC)],
-                      });
-                    });
-                    break;
-                }
+      // try/catch block, handling Discord API errors appropriately
+      try {
+        // try fetching the channel, may throw '50001', bot can't see channel
+        const messageChannel = await client.channels.fetch(channelId);
+        if (messageChannel && messageChannel.type === ChannelType.GuildText) {
+          // try fetching the message, may throw '10008', message doesn't exist (deleted?)
+          const discordMsg = await messageChannel.messages.fetch(messageId);
+          // if the message exists and is accessible, then update it depending on the message type
+          if (discordMsg)
+            switch (message.type) {
+              // lively version of /floors
+              case 'curr_floors':
+                await discordMsg.edit({
+                  embeds: [
+                    currentHeightsEmbed().setDescription(DISPLAY_CMD_DESC),
+                  ],
+                });
+                break;
+              // lively version of /keys
+              case 'curr_keys':
+                await discordMsg.edit({
+                  embeds: [
+                    (await currentKeysEmbed()).setDescription(DISPLAY_CMD_DESC),
+                  ],
+                });
+                break;
+            }
+        }
+      } catch (err) {
+        const discordErr = err as DiscordAPIError;
+        // discord API error codes
+        // https://github.com/meew0/discord-api-docs-1/blob/master/docs/topics/RESPONSE_CODES.md#json-error-response
+        switch (discordErr.code) {
+          case 10003: // Unknown channel
+            prisma.persistentMessage.update({
+              where: {messageId},
+              data: {deleted: true},
             });
-        })
-        .catch(err => {
-          const discordErr = err as DiscordAPIError;
-          // discord API error codes
-          // https://github.com/meew0/discord-api-docs-1/blob/master/docs/topics/RESPONSE_CODES.md#json-error-response
-          switch (discordErr.code) {
-            case 10003: // Unknown channel
-              prisma.persistentMessage.update({
-                where: {messageId},
-                data: {deleted: true},
-              });
-              break;
-            case 10008: // Unknown message
-              prisma.persistentMessage.update({
-                where: {messageId},
-                data: {deleted: true},
-              });
-              break;
-            case 50001: // Missing access
-              prisma.persistentMessage.update({
-                where: {messageId},
-                data: {deleted: true},
-              });
-              break;
-            case 50005: // Cannot edit a message authored by another user
-              break;
-          }
-        });
+            break;
+          case 10008: // Unknown message
+            prisma.persistentMessage.update({
+              where: {messageId},
+              data: {deleted: true},
+            });
+            break;
+          case 50001: // Missing access
+            prisma.persistentMessage.update({
+              where: {messageId},
+              data: {deleted: true},
+            });
+            break;
+          case 50005: // Cannot edit a message authored by another user
+            break;
+        }
+      }
     }
 
     time = `${Date.now() - start}ms`;
