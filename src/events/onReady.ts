@@ -176,16 +176,16 @@ const onReady = async (client: Client) => {
 
     // persistent messages types are 'curr_floors' and 'curr_keys'
     const persistentMessages = await prisma.persistentMessage.findMany({
-      where: {production: isProd},
+      where: {production: isProd, deleted: false},
     });
 
     // iterate through each one
     for (const message of persistentMessages) {
       const {messageId, channelId} = message;
-      // try/catch block, handling Discord API errors appropriately
-      try {
-        // retrieve the message's channel first
-        client.channels.fetch(channelId).then(channel => {
+      // retrieve the message's channel first
+      client.channels
+        .fetch(channelId)
+        .then(channel => {
           if (channel && channel.type === ChannelType.GuildText)
             // if the channel exists, and it's a guild text channel, then retrieve the message by message id
             channel.messages.fetch(messageId).then(discordMsg => {
@@ -210,25 +210,34 @@ const onReady = async (client: Client) => {
                     break;
                 }
             });
+        })
+        .catch(err => {
+          const discordErr = err as DiscordAPIError;
+          // discord API error codes
+          // https://github.com/meew0/discord-api-docs-1/blob/master/docs/topics/RESPONSE_CODES.md#json-error-response
+          switch (discordErr.code) {
+            case 10003: // Unknown channel
+              prisma.persistentMessage.update({
+                where: {messageId},
+                data: {deleted: true},
+              });
+              break;
+            case 10008: // Unknown message
+              prisma.persistentMessage.update({
+                where: {messageId},
+                data: {deleted: true},
+              });
+              break;
+            case 50001: // Missing access
+              prisma.persistentMessage.update({
+                where: {messageId},
+                data: {deleted: true},
+              });
+              break;
+            case 50005: // Cannot edit a message authored by another user
+              break;
+          }
         });
-      } catch (err) {
-        const discordErr = err as DiscordAPIError;
-        // discord API error codes
-        // https://github.com/meew0/discord-api-docs-1/blob/master/docs/topics/RESPONSE_CODES.md#json-error-response
-        switch (discordErr.code) {
-          case 10003: // Unknown channel
-            prisma.persistentMessage.delete({where: {messageId}});
-            break;
-          case 10008: // Unknown message
-            prisma.persistentMessage.delete({where: {messageId}});
-            break;
-          case 50001: // Missing access
-            prisma.persistentMessage.delete({where: {messageId}});
-            break;
-          case 50005: // Cannot edit a message authored by another user
-            break;
-        }
-      }
     }
 
     time = `${Date.now() - start}ms`;
