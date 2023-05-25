@@ -184,6 +184,7 @@ const onReady = async (client: Client) => {
       curr_keys: (await currentKeysEmbed()).setDescription(DISPLAY_CMD_DESC),
     };
 
+    const promises: Promise<any>[] = [];
     // iterate through each one
     for (const message of persistentMessages) {
       const {messageId, channelId} = message;
@@ -199,15 +200,19 @@ const onReady = async (client: Client) => {
             switch (message.type) {
               // lively version of /floors
               case 'curr_floors':
-                discordMsg.edit({
-                  embeds: [embeds['curr_floors']],
-                });
+                promises.push(
+                  discordMsg.edit({
+                    embeds: [embeds['curr_floors']],
+                  })
+                );
                 break;
               // lively version of /keys
               case 'curr_keys':
-                discordMsg.edit({
-                  embeds: [embeds['curr_keys']],
-                });
+                promises.push(
+                  discordMsg.edit({
+                    embeds: [embeds['curr_keys']],
+                  })
+                );
                 break;
             }
         }
@@ -240,6 +245,8 @@ const onReady = async (client: Client) => {
       }
     }
 
+    // await all message edits completion
+    await Promise.all(promises);
     time = `${Date.now() - start}ms`;
     logger.info(
       `Updated ${persistentMessages.length} persistent messages in ${time}`,
