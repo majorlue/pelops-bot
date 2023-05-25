@@ -179,6 +179,11 @@ const onReady = async (client: Client) => {
       where: {production: isProd, deleted: false},
     });
 
+    const embeds = {
+      curr_floors: currentHeightsEmbed().setDescription(DISPLAY_CMD_DESC),
+      curr_keys: (await currentKeysEmbed()).setDescription(DISPLAY_CMD_DESC),
+    };
+
     // iterate through each one
     for (const message of persistentMessages) {
       const {messageId, channelId} = message;
@@ -194,18 +199,14 @@ const onReady = async (client: Client) => {
             switch (message.type) {
               // lively version of /floors
               case 'curr_floors':
-                await discordMsg.edit({
-                  embeds: [
-                    currentHeightsEmbed().setDescription(DISPLAY_CMD_DESC),
-                  ],
+                discordMsg.edit({
+                  embeds: [embeds['curr_floors']],
                 });
                 break;
               // lively version of /keys
               case 'curr_keys':
-                await discordMsg.edit({
-                  embeds: [
-                    (await currentKeysEmbed()).setDescription(DISPLAY_CMD_DESC),
-                  ],
+                discordMsg.edit({
+                  embeds: [embeds['curr_keys']],
                 });
                 break;
             }
