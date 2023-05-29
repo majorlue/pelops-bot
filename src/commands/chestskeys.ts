@@ -61,7 +61,7 @@ const command: Command = {
             .setAuthor({
               name: `${theme} | Week of ${week}`,
             })
-            .setDescription(`No Tower info found for ${theme} ${week}`)
+            .setDescription(`No Tower info found for ${theme}, week ${week}`)
             .setThumbnail(towerSprites[theme])
             .setColor(EMBED_COLOUR as ColorResolvable)
             .setFooter({text: FOOTER_MESSAGE})

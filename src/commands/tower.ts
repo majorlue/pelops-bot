@@ -53,7 +53,7 @@ const command: Command = {
               name: `${theme} | Week of ${week}`,
             })
             .setDescription(
-              `No Tower info found for ${theme} ${week}. We're waiting on user contributions for the week.\n\n` +
+              `No Tower info found for ${theme}, week ${week}. We're waiting on user contributions for the week.\n\n` +
                 CONTRIBUTION_REQUEST_MSG
             )
             .setThumbnail(towerSprites[theme])

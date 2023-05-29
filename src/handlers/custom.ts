@@ -139,8 +139,11 @@ export async function currentKeysEmbed() {
 
   // create embed fields for each theme
   const fields = [];
-  for (const theme in keyFormat)
-    fields.push({name: theme, value: keyFormat[theme]});
+  for (const theme in keyFormat) {
+    if (keyFormat[theme] === '\u200b')
+      fields.push({name: theme, value: `No Tower info submitted`});
+    else fields.push({name: theme, value: keyFormat[theme]});
+  }
 
   // return embed for the command
   return new EmbedBuilder()

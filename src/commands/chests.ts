@@ -4,7 +4,7 @@ import {config, towerConfig} from '../config';
 import {currentWeek, prisma} from '../handlers';
 import {Command} from '../interfaces';
 
-const {FOOTER_MESSAGE, EMBED_COLOUR} = config;
+const {FOOTER_MESSAGE, EMBED_COLOUR, CONTRIBUTION_REQUEST_MSG} = config;
 const {themes} = towerConfig;
 const themeOpts = themes.map(x => ({name: x, value: x}));
 
@@ -36,6 +36,25 @@ const command: Command = {
         chests: {gt: 0},
       },
     });
+
+    if (chestFloors.length === 0) {
+      await interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: `${theme} | Week of ${week}`,
+            })
+            .setDescription(
+              `No Tower info found for ${theme}, week ${week}. We're waiting on user contributions for the week.\n\n` +
+                CONTRIBUTION_REQUEST_MSG
+            )
+            .setColor(EMBED_COLOUR as ColorResolvable)
+            .setFooter({text: FOOTER_MESSAGE})
+            .setTimestamp(),
+        ],
+      });
+      return;
+    }
 
     // sort key floors in ascending order
     chestFloors.sort((a, b) => a.floor - b.floor);
