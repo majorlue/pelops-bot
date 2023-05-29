@@ -11,6 +11,7 @@ import encounter from './encounter';
 import floors from './floors';
 import keys from './keys';
 import lights from './lights';
+import share from './share';
 import submissions from './submissions';
 import submit from './submit';
 import tower from './tower';
@@ -27,6 +28,7 @@ const commandList: Command[] = [
   floors,
   keys,
   lights,
+  share,
   submissions,
   submit,
   tower,
