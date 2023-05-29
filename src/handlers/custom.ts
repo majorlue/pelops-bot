@@ -8,9 +8,14 @@ import {client, currentWeek, dayjs} from '.';
 import {config, towerConfig} from '../config';
 import {prisma} from './prisma';
 
-const {FOOTER_MESSAGE, EMBED_COLOUR, BOT_OWNER, CONTRIBUTION_REQUEST_MSG} =
-  config;
-const {themes, keyFights} = towerConfig;
+const {
+  FOOTER_MESSAGE,
+  EMBED_COLOUR,
+  BOT_OWNER,
+  CONTRIBUTION_REQUEST_MSG,
+  DISPLAY_CMD_DESC,
+} = config;
+const {themes, keyFights, towerSprites} = towerConfig;
 
 // retrieve tower encounters, sorting key encounters first, then alphabetically
 export const leadMonsters = prisma.encounter.findMany().then(response => {
@@ -159,6 +164,82 @@ export async function currentKeysEmbed() {
     .setFooter({text: FOOTER_MESSAGE})
     .setColor(EMBED_COLOUR as ColorResolvable)
     .setTimestamp();
+}
+
+export async function currentTowerEmbed(
+  theme: 'Selene' | 'Eos' | 'Oceanus' | 'Prometheus' | 'Themis'
+) {
+  const week = currentWeek();
+  const floors = await prisma.floor.findMany({where: {week, theme}});
+
+  // If no floors found, return empty message
+  if (floors.length === 0) {
+    return [
+      new EmbedBuilder()
+        .setAuthor({
+          name: `${theme} | Week of ${week}`,
+        })
+        .setDescription(
+          `No Tower info found for ${theme}, week ${week}. We're waiting on user contributions for the week.`
+        )
+        .addFields({
+          name: '\u200b',
+          value: DISPLAY_CMD_DESC,
+        })
+        .setThumbnail(towerSprites[theme])
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setFooter({text: FOOTER_MESSAGE})
+        .setTimestamp(),
+    ];
+  }
+
+  floors.sort((a, b) => a.floor - b.floor);
+
+  const chestEmoji = client.emojis.cache.find(
+    emoji => emoji.name === 'tower_chest'
+  );
+
+  const floorText: string[] = [];
+  let embedNum = 0;
+  let prevFloor: number = 1;
+  for (const floor of floors) {
+    const {floor: floorNum, guardians, strays, puzzles, chests} = floor;
+
+    let text =
+      `**Floor ${floorNum}**` +
+      (chests ? ` (${chests}x ${chestEmoji})` : '') +
+      '\n';
+    if (guardians.length > 0)
+      text += '`Guardians`: ' + guardians.join(', ') + '\n';
+    if (strays.length > 0) text += '`Strays`: ' + strays.join(', ') + '\n';
+    if (puzzles.length > 0) text += '`Puzzles`: ' + puzzles.join(', ') + '\n';
+
+    // if the length is going to exceed discord's limit, create another embed
+    if (!floorText[embedNum]) floorText[embedNum] = '\u200b';
+    else if (floorText[embedNum].length + text.length > 4096) embedNum++;
+
+    floorText[embedNum] += text + '\n';
+    prevFloor = floorNum;
+  }
+
+  const responseEmbeds = [];
+  for (const embedText of floorText)
+    responseEmbeds.push(
+      new EmbedBuilder()
+        .setAuthor({
+          name: `${theme} | Week of ${week}`,
+        })
+        .setDescription(embedText.replace('undefined', ''))
+        .setThumbnail(towerSprites[theme])
+        .setColor(EMBED_COLOUR as ColorResolvable)
+        .setFooter({text: FOOTER_MESSAGE})
+        .setTimestamp()
+    );
+  responseEmbeds[responseEmbeds.length - 1].addFields({
+    name: '\u200b',
+    value: DISPLAY_CMD_DESC,
+  });
+  return responseEmbeds;
 }
 
 export function missingChannelPerms(interaction: CommandInteraction) {

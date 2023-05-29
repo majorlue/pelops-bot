@@ -7,6 +7,7 @@ import {config, isProd} from '../config';
 import {
   currentHeightsEmbed,
   currentKeysEmbed,
+  currentTowerEmbed,
   currentWeek,
   leadMonsters,
   logger,
@@ -182,6 +183,11 @@ const onReady = async (client: Client) => {
     const embeds = {
       curr_floors: currentHeightsEmbed().setDescription(DISPLAY_CMD_DESC),
       curr_keys: (await currentKeysEmbed()).setDescription(DISPLAY_CMD_DESC),
+      curr_tower_selene: await currentTowerEmbed('Selene'),
+      curr_tower_eos: await currentTowerEmbed('Eos'),
+      curr_tower_oceanus: await currentTowerEmbed('Oceanus'),
+      curr_tower_prometheus: await currentTowerEmbed('Prometheus'),
+      curr_tower_themis: await currentTowerEmbed('Themis'),
     };
 
     const promises: Promise<any>[] = [];
@@ -211,6 +217,42 @@ const onReady = async (client: Client) => {
                 promises.push(
                   discordMsg.edit({
                     embeds: [embeds['curr_keys']],
+                  })
+                );
+                break;
+              // lively versions of /tower
+              case 'curr_tower_selene':
+                promises.push(
+                  discordMsg.edit({
+                    embeds: embeds['curr_tower_selene'],
+                  })
+                );
+                break;
+              case 'curr_tower_eos':
+                promises.push(
+                  discordMsg.edit({
+                    embeds: embeds['curr_tower_eos'],
+                  })
+                );
+                break;
+              case 'curr_tower_oceanus':
+                promises.push(
+                  discordMsg.edit({
+                    embeds: embeds['curr_tower_oceanus'],
+                  })
+                );
+                break;
+              case 'curr_tower_prometheus':
+                promises.push(
+                  discordMsg.edit({
+                    embeds: embeds['curr_tower_prometheus'],
+                  })
+                );
+                break;
+              case 'curr_tower_themis':
+                promises.push(
+                  discordMsg.edit({
+                    embeds: embeds['curr_tower_themis'],
                   })
                 );
                 break;
