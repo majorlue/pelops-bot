@@ -198,7 +198,11 @@ const onReady = async (client: Client) => {
       try {
         // try fetching the channel, may throw '50001', bot can't see channel
         const messageChannel = await client.channels.fetch(channelId);
-        if (messageChannel && messageChannel.type === ChannelType.GuildText) {
+        if (
+          messageChannel &&
+          (messageChannel.type === ChannelType.GuildText ||
+            messageChannel.type === ChannelType.PublicThread)
+        ) {
           // try fetching the message, may throw '10008', message doesn't exist (deleted?)
           const discordMsg = await messageChannel.messages.fetch(messageId);
           // if the message exists and is accessible, then update it depending on the message type

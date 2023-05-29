@@ -95,7 +95,11 @@ async function floors(interaction: CommandInteraction) {
   // try to update interaction reply via message API to check permissions
   try {
     const messageChannel = await client.channels.fetch(message.channelId);
-    if (messageChannel && messageChannel.type === ChannelType.GuildText) {
+    if (
+      messageChannel &&
+      (messageChannel.type === ChannelType.GuildText ||
+        messageChannel.type === ChannelType.PublicThread)
+    ) {
       const discordMsg = await messageChannel.messages.fetch(message.id);
       if (discordMsg)
         await discordMsg.edit({
@@ -162,7 +166,11 @@ async function keys(interaction: CommandInteraction) {
   // try to update interaction reply via message API to check permissions
   try {
     const messageChannel = await client.channels.fetch(message.channelId);
-    if (messageChannel && messageChannel.type === ChannelType.GuildText) {
+    if (
+      messageChannel &&
+      (messageChannel.type === ChannelType.GuildText ||
+        messageChannel.type === ChannelType.PublicThread)
+    ) {
       const discordMsg = await messageChannel.messages.fetch(message.id);
       if (discordMsg)
         await discordMsg.edit({
@@ -236,7 +244,11 @@ async function tower(interaction: CommandInteraction) {
   // try to update interaction reply via message API to check permissions
   try {
     const messageChannel = await client.channels.fetch(message.channelId);
-    if (messageChannel && messageChannel.type === ChannelType.GuildText) {
+    if (
+      messageChannel &&
+      (messageChannel.type === ChannelType.GuildText ||
+        messageChannel.type === ChannelType.PublicThread)
+    ) {
       const discordMsg = await messageChannel.messages.fetch(message.id);
       if (discordMsg)
         await discordMsg.edit({
