@@ -50,16 +50,16 @@ const command: Command = {
   run: async interaction => {
     const subcommand = interaction.options.data[0].name;
 
-    // if (interaction.guild) {
-    //   const user = await interaction.guild.members.fetch(interaction.user.id);
-    //   if (!user.permissions.has('ManageMessages')) {
-    //     // respond with missing perms, then delete the response after 5s
-    //     await interaction.editReply(missingChannelPerms(interaction));
-    //     await sleep(5000);
-    //     await interaction.deleteReply();
-    //     return;
-    //   }
-    // }
+    if (interaction.guild) {
+      const user = await interaction.guild.members.fetch(interaction.user.id);
+      if (!user.permissions.has('ManageMessages')) {
+        // respond with missing perms, then delete the response after 5s
+        await interaction.editReply(missingChannelPerms(interaction));
+        await sleep(5000);
+        await interaction.deleteReply();
+        return;
+      }
+    }
 
     await subcmds[subcommand](interaction);
   },
