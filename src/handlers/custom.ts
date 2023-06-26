@@ -243,6 +243,7 @@ export async function currentTowerEmbed(
 }
 
 export function missingChannelPerms(interaction: CommandInteraction) {
+  const subcommand = interaction.options.data[0].name;
   return {
     embeds: [
       new EmbedBuilder()
@@ -251,7 +252,10 @@ export function missingChannelPerms(interaction: CommandInteraction) {
           iconURL: interaction.user.avatarURL() || undefined,
         })
         .setTitle(`Permission Denied`)
-        .setDescription('This can only be used by server moderators!')
+        .setDescription(
+          `This command creates a public, persistent message. To avoid inconviencing other users, it requires moderator permissions. ` +
+            `Instead try using \`/${subcommand}\` for personal use.`
+        )
         .setFooter({text: FOOTER_MESSAGE})
         .setColor(EMBED_COLOUR as ColorResolvable)
         .setTimestamp(),
